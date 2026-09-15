@@ -158,6 +158,7 @@
         if (isSkipped(row)) return;
         var why = [];
         if (row.verified === false) why.push('未驗證');
+        if (row.booking === '需預約' && row.plan !== '已到訪') why.push(row.plan === '備選' ? '選擇此備選前需預約' : '需預約');
         if (row.booking === '待確認') why.push('訂位待確認');
         var c = costView(row.cost, trip);
         var costText = c ? c.text + ' ' + c.note : '';
@@ -448,7 +449,7 @@
       '\n        </li>';
   }
 
-  function briefHtml(day) {
+  function briefHtml(day, pending) {
     var byTime = {};
     day.rows.forEach(function (r) { byTime[r.time] = r; });
     function stop(t) {
@@ -465,6 +466,7 @@
       '\n            <div><dt>今晚</dt><dd>' + esc(b.stay) + '</dd></div>' +
       '\n            <div><dt>時間節點</dt><dd>' + fixed + '</dd></div>' +
       '\n            <div class="attention"><dt>先留意</dt><dd>' + esc(b.attention) + '</dd></div>' +
+      (pending ? '\n            <div class="attention"><dt>待處理</dt><dd><a href="#checklist">這天有 ' + pending + ' 項預約或資料要確認</a></dd></div>' : '') +
       '\n          </dl>' +
       '\n        </section>';
   }
@@ -480,7 +482,7 @@
       '\n          </div>' +
       '\n          <div class="tools" hidden><button type="button" class="tg" data-scope="day">展開原始備註</button></div>' +
       '\n        </header>' +
-      '\n        ' + briefHtml(day) +
+      '\n        ' + briefHtml(day, checklist({ meta: trip.meta, days: [day] }).length) +
       '\n        <ol class="rows">' + day.rows.map(function (r) { return rowHtml(trip, day, r); }).join('') +
       '\n        </ol>' +
       '\n      </article>';
@@ -639,7 +641,7 @@
 
     var todo = checklist(trip);
     var todoHtml = todo.length
-      ? '\n      <details class="resources checklist"><summary>出發前要確認（' + todo.length + ' 項）</summary><ul>' +
+      ? '\n      <details class="resources checklist" id="checklist"><summary>出發前要處理（' + todo.length + ' 項）</summary><ul>' +
         todo.map(function (it) {
           return '<li><a href="#' + rowId(it.day, it.row) + '"><time>' + pad2(it.day.n) + ' · ' + esc(it.row.time) + '</time> ' + esc(stopTitle(it.row)) + '</a>' +
             '<span>' + esc(it.why.join('、')) + '</span></li>';
@@ -692,10 +694,13 @@
       '        <div><h1>' + esc(m.title) + '</h1>' + (m.subtitle ? '<p class="subtitle">' + esc(m.subtitle) + '</p>' : '') +
       (m.example_label ? '<p class="example-label">' + esc(m.example_label) + '</p>' : '') + '</div>\n' +
       '        <p class="trip-dates">' + tripDates + '</p>\n' +
-      '      </div>' + cover + journey + factsHtml(trip) + downloadsHtml +
+      '      </div>' +
+      '\n      <nav class="reading-start" aria-label="開始閱讀"><a class="start-link" href="#' + firstId + '">開始看行程</a>' +
+      (todo.length ? '<a href="#checklist">出發前待處理 ' + todo.length + ' 項</a>' : '') + '</nav>' +
+      cover + journey + factsHtml(trip) + downloadsHtml +
       (m.notice ? '\n      <p class="guide-note">' + noticeHtml(m.notice) + '</p>' : '') + prepHtml +
       '\n      <p class="print-note">PDF 精簡版保留每日簡報與必要指示；已取消、沒去的項目及原始長篇備註請見 HTML 行程表。</p>' +
-      '\n      <div class="reading-tools"><div class="tools" hidden><button type="button" class="tg" data-scope="all">展開全部原始備註</button></div><a href="#' + firstId + '">開始看行程</a></div>' +
+      '\n      <div class="reading-tools"><div class="tools" hidden><button type="button" class="tg" data-scope="all">展開全部原始備註</button></div></div>' +
       '\n    </header>\n' +
       trip.sections.map(function (s) { return sectionHtml(trip, s, byN); }).join('') +
       appsSection +
@@ -826,6 +831,14 @@ p{margin:0}
 .resources>summary{cursor:pointer;padding:12px 0;font-size:14px}
 .reading-tools{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:12px}
 .reading-tools a{font-size:13px;text-underline-offset:4px}
+.reading-start{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;margin:0 0 20px;font-size:14px}
+.reading-start a{display:inline-flex;align-items:center;min-height:44px;text-underline-offset:4px}
+.reading-start .start-link{font-weight:500;border:1px solid var(--ink);border-radius:3px;padding:8px 16px;text-decoration:none}
+.reading-start .start-link:hover{background:var(--char);color:var(--bone)}
+.reading-tools .tools{margin-top:0}
+.reading-tools button{border-color:transparent;padding-inline:0;color:var(--ink-2);text-decoration:underline;text-underline-offset:4px}
+.reading-tools button:hover{background:transparent;color:var(--ink);border-color:transparent}
+.checklist{scroll-margin-top:24px}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:1;padding:3px 7px;border-radius:3px;border:1px solid var(--rule);color:var(--ink-2)}
 .chip.ok{color:var(--ink-2);border-color:var(--sage)}
 .chip.ok .ic{color:var(--sage)}
@@ -911,17 +924,18 @@ p{margin:0}
   .rail a .ri{grid-row:1;font-size:14px;line-height:1.1}
   .rail a .rd{grid-row:2;font-size:12px}
   .rail a.active .ri{color:var(--ink-on-dark)}
-  .rail a .rc{display:block;grid-row:3;grid-column:1;font-size:11.5px;white-space:nowrap;line-height:1.3;margin-top:1px}
+  .rail a.active::after{left:3px;top:11px}
+  .rail a .rc{display:block;grid-row:3;grid-column:1;font-size:13px;white-space:nowrap;line-height:1.3;margin-top:1px}
   .sheet{padding:24px 20px 48px}
   .titleline{display:block;padding-bottom:16px}
   .masthead h1{font-size:clamp(24px,6.8vw,34px)}
   .subtitle{font-size:14px;margin-top:6px}
   .trip-dates{margin-top:10px;font-size:12px}
   .cover img{height:190px;object-position:50% 55%}
-  .cover figcaption{font-size:11px;gap:8px}
+  .cover figcaption{font-size:13px;gap:8px}
   .journey{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:12px;margin-top:20px}
-  .journey a{font-size:12px}
-  .journey small{font-size:11px}
+  .journey a{font-size:13px}
+  .journey small{font-size:12px}
   .hero img{aspect-ratio:16/9}
   .hero h2{font-size:24px}
   .appgrid{grid-template-columns:1fr}
@@ -948,6 +962,9 @@ p{margin:0}
   .dayhead h3{font-size:18px}
   .dayhead .tools{display:flex;grid-column:2;grid-row:2;margin:0}
   .links a{padding-block:10px;min-height:44px;display:inline-flex;align-items:center}
+  .note summary{display:flex;align-items:center;min-height:44px;font-size:13px;width:fit-content;gap:4px}
+  .guide-note,.cost-note{font-size:13px}
+  .checklist{scroll-margin-top:110px}
 }
 
 /* print */
@@ -975,7 +992,7 @@ p{margin:0}
   .row{grid-template-columns:52px minmax(0,1fr) 150px}
   .links a{text-decoration:none}
   .tools{display:none}
-  .skip-link,.downloads,.reading-tools,.resources,.row.skipped{display:none}
+  .skip-link,.downloads,.reading-start,.reading-tools,.resources,.row.skipped{display:none}
   .guide-note,.print-note{display:block;font-size:12px;line-height:1.7;margin-top:16px;color:var(--ink-2)}
   details.note{display:none}
   .brief{break-inside:avoid;break-after:avoid}
@@ -994,6 +1011,11 @@ p{margin:0}
 
   var JS = `
 (function(){
+  var checklist=document.getElementById('checklist');
+  function revealChecklist(){if(checklist)checklist.open=true}
+  document.querySelectorAll('a[href="#checklist"]').forEach(function(a){a.addEventListener('click',revealChecklist)});
+  if(window.location.hash==='#checklist')revealChecklist();
+  window.addEventListener('hashchange',function(){if(window.location.hash==='#checklist')revealChecklist()});
   var links=[].slice.call(document.querySelectorAll('.rail a[data-day]'));
   var byDay={};links.forEach(function(a){byDay[a.dataset.day]=a});
   var current=null;
