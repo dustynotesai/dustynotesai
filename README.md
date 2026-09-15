@@ -9,6 +9,7 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 | 檔案 | 是什麼 |
 |---|---|
 | [`travel/travel-planner/`](travel/travel-planner/) | Claude Code 的 skill：先問你、再去查、給你看過大綱，才排完整行程，最後做成行程頁和 PDF |
+| [`travel/travel-planner/prompt.md`](travel/travel-planner/prompt.md) | **複製這幾句就能用**：開始排、一次講完、改行程、旅行回來 |
 | [`travel/travel-template.md`](travel/travel-template.md) | 空白行程模板（Markdown），不用 Claude Code 也能自己填 |
 | [`travel/examples/europe-2026/`](travel/examples/europe-2026/) | **歐洲範例（真的走過的）**：十五天、四個國家的行程頁 `trip.html` 和 PDF。私人資訊已拿掉 |
 | 東京範例 | 準備中（用這個 skill 排出來的） |
@@ -28,6 +29,8 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
    「幫我安裝這個 skill：https://github.com/dustynotesai/dustynotesai 裡面的 travel/travel-planner，裝到我的 Claude Code skills 資料夾」
    它要寫進 `.claude` 資料夾的時候會先問你，按允許就好。裝好就能用，不用重開。
 5. **跟它說**：「幫我排一趟去 ＿＿ 的旅行」。
+   它會先問你幾題、讀回去確認，再去查——**那些停頓是故意的，答完它才會繼續**。
+   不想被一題一題問，[`travel/travel-planner/prompt.md`](travel/travel-planner/prompt.md) 有可以整段複製的版本。
 6. **做好之後**，打開 `trips/<城市>-<年-月>/trip.html` 看；要印出來帶著走，用同一個資料夾裡的 `trip.pdf`。
 
 **想自己裝也可以**：這一頁右上角綠色的「Code」→「Download ZIP」，解壓縮，把 `travel/travel-planner` 整個資料夾複製到
