@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>行程表</title>
+<!--
+  travel-planner · template.html — 沒有 Node 的時候用這一份。
+
+  1. 把 template.html 和 render.js 複製到同一個資料夾。
+  2. 把 trip.json 的內容整份貼進下面的 <script type="application/json" id="trip"> 裡。
+     字串裡如果出現 </script>，寫成 <\/script>。
+  3. 用瀏覽器打開。頁面在瀏覽器裡用 render.js 畫出來。
+
+  跟 build.mjs 做出來的 trip.html 的差別：這一份要開 JavaScript 才看得到；
+  照片是從 Wikimedia Commons 即時載入（離線看不到），也沒有自動的照片出處。
+  photos 用 "file" 的話，路徑是相對於這個 HTML 檔。
+-->
+<style>
+  body{margin:0;padding:32px 20px;background:#FAFAF7;color:#121212;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;font-size:15px;line-height:1.7}
+  .tp-status{max-width:72ch;margin:0 auto}
+  .tp-status h1{font-size:20px;margin:0 0 8px}
+  .tp-status li{margin-top:4px}
+</style>
+</head>
+<body>
+<div class="tp-status" id="tp-status">
+  <h1>行程表</h1>
+  <p>正在用 render.js 畫行程……</p>
+  <noscript><p>這一份要開 JavaScript 才會畫出行程。不用 JavaScript 也能看的版本，用 <code>node build.mjs trip.json</code> 做。</p></noscript>
+</div>
+
+<script type="application/json" id="trip">
+</script>
+
+<script src="render.js"></script>
+<script>
+(function () {
+  var box = document.getElementById('tp-status');
+  function show(title, items) {
+    box.innerHTML = '';
+    var h = document.createElement('h1'); h.textContent = title; box.appendChild(h);
+    if (items && items.length) {
+      var ul = document.createElement('ul');
+      items.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+      box.appendChild(ul);
+    }
+  }
+  function run() {
+    var TP = window.TravelPlanner;
+    if (!TP) return show('找不到 render.js', ['render.js 要跟這個 HTML 放在同一個資料夾。']);
+    var raw = document.getElementById('trip').textContent.trim();
+    if (!raw) return show('還沒有行程資料', ['把 trip.json 的內容貼進 <script type="application/json" id="trip"> 裡面。']);
+    var trip;
+    try { trip = JSON.parse(raw); } catch (e) { return show('trip JSON 不是合法的 JSON', [e.message]); }
+    var check = TP.validateTrip(trip);
+    if (check.errors.length) return show('trip.json 有 ' + check.errors.length + ' 個問題，改好再開', check.errors);
+    if (check.warnings.length && window.console) check.warnings.forEach(function (w) { console.warn(w); });
+    var html = TP.renderTrip(trip, {});
+    // Replace this shell with the rendered page; its own script runs as it is written.
+    document.open();
+    document.write(html);
+    document.close();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+</script>
+</body>
+</html>
