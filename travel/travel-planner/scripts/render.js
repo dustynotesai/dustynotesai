@@ -20,6 +20,19 @@
   var BOOKING = ['未訂', '需預約', '已訂', '待確認'];
   var SKIP = ['已取消', '沒去'];
   var TYPE = { '交通': 'transit', '景點': 'sight', '美食': 'food', '拍照': 'photo', '住宿': 'hotel', '購物': 'shop' };
+  // 有地點的格子一定要有地圖連結。交通是移動，不是一個點，所以不算。
+  var NEEDS_MAP = { '景點': 1, '美食': 1, '拍照': 1, '住宿': 1, '購物': 1 };
+  // 只收搜尋網址和座標。/maps/place/ 那種帶 CID 的沒有查就是編的，短網址看不出指去哪裡。
+  var MAP_SEARCH = /^https:\/\/www\.google\.com\/maps\/search\//;
+  var COORD = /^-?\d{1,3}(\.\d+)?\s*,\s*-?\d{1,3}(\.\d+)?$/;
+  // 兩種都收：?api=1&query=… 和把搜尋字串放在路徑上的 /maps/search/<字串>。
+  function mapQuery(u) {
+    if (!MAP_SEARCH.test(u)) return null;
+    var m = /[?&]query=([^&]*)/.exec(u);
+    var raw = m ? m[1] : u.replace(MAP_SEARCH, '').split(/[?#]/)[0];
+    if (!raw) return null;
+    try { return decodeURIComponent(raw.replace(/\+/g, ' ')); } catch (e) { return raw; }
+  }
   var WEEK = '日一二三四五六';
   var CHANNEL = 'https://www.youtube.com/@DustyNotesAI';
   var NO_FIXED = '無另列定時節點，依現場與訂位安排';
@@ -331,6 +344,20 @@
           }
         } else err(rl + '：cost 要是字串或物件');
         if (row.map != null && !isUrl(row.map)) err(rl + '：map 要是 https:// 網址');
+        else if (row.map == null && NEEDS_MAP[row.type] && SKIP.indexOf(row.plan) < 0 && row.city !== 'Transit') {
+          err(rl + '：' + row.type + ' 的格子要有 map（地圖連結）。用搜尋網址，不要組地點網址：'
+            + 'https://www.google.com/maps/search/?api=1&query=<地點名> <城市>');
+        } else if (row.map != null) {
+          var q = mapQuery(row.map);
+          if (!q) {
+            err(rl + '：map 只收 https://www.google.com/maps/search/?api=1&query=… '
+              + '（或 query=<緯度>,<經度>）。/maps/place/ 帶 CID 的沒查過就是編的，短網址看不出指去哪裡');
+          } else if (!COORD.test(q) && isStr(row.city) && q.indexOf(row.city) < 0 && q.length < 6) {
+            // 同名的店很多。查得到座標最好，不然至少「地點名 城市」，開出來才是一個點。
+            warnings.push(rl + '：map 的 query 是「' + q + '」，太短可能開出一列搜尋結果；'
+              + '加上城市（' + row.city + '）或改用座標，他一點就到');
+          }
+        }
         if (row.ticket != null && !isUrl(row.ticket)) err(rl + '：ticket 要是 https:// 網址');
         if (row.sources != null) {
           if (!Array.isArray(row.sources)) err(rl + '：sources 要是網址陣列');
@@ -369,6 +396,7 @@
       (s.lead_days || []).forEach(function (n) {
         if (s.days.indexOf(n) < 0) err(sp + '.lead_days 的 ' + n + ' 不在這一段的 days 裡');
       });
+      if (!isStr(s.photo)) err(sp + '.photo：缺少（每一段城市都要有一張照片，Commons 檔名或他自己的照片）');
       usePhoto(s.photo, sp + '.photo');
     });
     days.forEach(function (day) {

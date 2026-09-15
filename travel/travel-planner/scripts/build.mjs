@@ -271,6 +271,12 @@ export async function buildTrip(opts, { fetch: fetchImpl = globalThis.fetch, log
 
   const resolved = await resolvePhotos(trip, baseDir, { ids: usedPhotos, fetch: fetchImpl });
   warnings.push(...resolved.warnings);
+  // 編出來的 Commons 檔名長得跟真的一樣，只有抓的時候才看得出來。Commons 說沒有這個
+  // 檔案，就是編的，城市分段那一張不能這樣過去。連不上網是另一回事，那個照舊只警告。
+  const invented = (trip.sections || [])
+    .filter((s) => s && s.photo && resolved.warnings.some((w) => w.startsWith(`photos.${s.photo}：Commons 上沒有`)))
+    .map((s) => `sections「${s.name}」的照片 ${s.photo}：Commons 上沒有這個檔案，換一張真的有的`);
+  if (invented.length) throw new BuildError(`${invented.length} 段城市的照片是編的，改好再建：`, invented);
   const forRender = { ...trip, photos: resolved.photos };
 
   let reportedUnused = false;
