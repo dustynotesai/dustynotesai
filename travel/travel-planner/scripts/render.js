@@ -771,6 +771,10 @@
   --paper:#FAFAF7; --bone:#F2EFDF; --char:#2A2724; --rule-d:#3A3633; --rule:#D9D5C8;
   --ink:#121212; --ink-2:#5F5C56; --ink-ghost:#827E77; --ink-on-dark:#F2EFDF; --muted-on-dark:#8E8E8A;
   --accent:#C1583A; --sage:#86927A;
+  /* 類型標籤。刻意都是低彩度、深淺接近的土色系——一眼分得出來，但不跟 accent 搶。
+     terracotta 留給「需預約／待確認」那種要花錢、有期限的格子。 */
+  --t-transit:#5B6B7A; --t-sight:#8A5A3C; --t-food:#8C6220;
+  --t-photo:#7A5A6E; --t-hotel:#5E6E55; --t-shop:#466E64;
   --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
   --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --mono:"Sometype Mono",ui-monospace,Consolas,monospace;
@@ -857,6 +861,13 @@ p{margin:0}
 .row:last-child{border-bottom:0}
 .row .t{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:-.02em;line-height:1.5;white-space:nowrap}
 .row .k{font-family:var(--mono);font-size:12px;color:var(--ink-2);letter-spacing:-.02em;line-height:1.3}
+.row.transit .k{color:var(--t-transit)}
+.row.sight .k{color:var(--t-sight)}
+.row.food .k{color:var(--t-food)}
+.row.photo .k{color:var(--t-photo)}
+.row.hotel .k{color:var(--t-hotel)}
+.row.shop .k{color:var(--t-shop)}
+.row.skipped .k{color:var(--ink-ghost)}
 .row .act{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
 .row .name{font-weight:500}
 .row{scroll-margin-top:24px}
