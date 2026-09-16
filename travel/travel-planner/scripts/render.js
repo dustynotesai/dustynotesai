@@ -22,6 +22,7 @@
   var TYPE = { '交通': 'transit', '景點': 'sight', '美食': 'food', '拍照': 'photo', '住宿': 'hotel', '購物': 'shop' };
   // 有地點的格子一定要有地圖連結。交通是移動，不是一個點，所以不算。
   var NEEDS_MAP = { '景點': 1, '美食': 1, '拍照': 1, '住宿': 1, '購物': 1 };
+  var CHECKOUT = /退房|寄放行李|check\s*-?\s*out/i;
   // 只收搜尋網址和座標。/maps/place/ 那種帶 CID 的沒有查就是編的，短網址看不出指去哪裡。
   var MAP_SEARCH = /^https:\/\/www\.google\.com\/maps\/search\//;
   var COORD = /^-?\d{1,3}(\.\d+)?\s*,\s*-?\d{1,3}(\.\d+)?$/;
@@ -359,6 +360,24 @@
           }
         }
         if (row.ticket != null && !isUrl(row.ticket)) err(rl + '：ticket 要是 https:// 網址');
+        else if (row.ticket == null && SKIP.indexOf(row.plan) < 0) {
+          // 住宿：還沒訂就一定要連結，不然他訂不了。已經訂了只是提醒。
+          if (row.type === '住宿' && !CHECKOUT.test(row.act || '')) {
+            if (row.booking !== '已訂') {
+              err(rl + '：住宿還沒訂，要有 ticket（訂房連結，飯店官網或訂房網）。沒有連結他訂不了');
+            } else {
+              warnings.push(rl + '：住宿已訂，但沒有 ticket；補一個飯店連結，他到現場要找地址和電話');
+            }
+          } else if (row.booking === '需預約') {
+            // 定時票、名額制的場子一定訂得到；「附近選一家」的餐廳還沒選定，只能提醒。
+            if (row.type === '景點' || row.type === '拍照') {
+              err(rl + '：需預約，要有 ticket（官方訂票連結）。沒有連結他訂不了');
+            } else {
+              warnings.push(rl + '：需預約但沒有 ticket；選定了就補官方訂位連結，'
+                + '還沒選定就在必要指示寫清楚怎麼訂（電話、現場候位、旺季要多久前訂）');
+            }
+          }
+        }
         if (row.sources != null) {
           if (!Array.isArray(row.sources)) err(rl + '：sources 要是網址陣列');
           else row.sources.forEach(function (s) { if (!isUrl(s)) err(rl + '：sources 裡「' + s + '」不是網址'); });

@@ -31,6 +31,8 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 5. **跟它說**：「幫我排一趟去 ＿＿ 的旅行」。
    它會先問你幾題、讀回去確認，再去查——**那些停頓是故意的，答完它才會繼續**。
    不想被一題一題問，[`travel/travel-planner/prompt.md`](travel/travel-planner/prompt.md) 有可以整段複製的版本。
+   **查資料那一段會安靜跑好幾分鐘**，畫面上一直有工具在動、沒有人講話——**那是正常的，不是當掉**。
+   一趟行程從頭到尾大概要等十幾到幾十分鐘，中間它會停下來問你幾次。
 6. **做好之後**，打開 `trips/<城市>-<年-月>/trip.html` 看；要印出來帶著走，用同一個資料夾裡的 `trip.pdf`。
 
 **想自己裝也可以**：這一頁右上角綠色的「Code」→「Download ZIP」，解壓縮，把 `travel/travel-planner` 整個資料夾複製到
