@@ -316,6 +316,8 @@
       rows.forEach(function (row, j) {
         if (!isObj(row)) { err(label + ' rows[' + j + ']：要是物件'); return; }
         var rl = label + ' ' + (row.time || 'rows[' + j + ']');
+        // 有的跑法整份不填 row.city，那一天的城市照樣用得上：在車上的格子才豁免得掉地圖。
+        var rowCity = isStr(row.city) ? row.city : (isStr(day.city) && day.city.indexOf('→') < 0 ? day.city : null);
         if (!TIME.test(row.time || '')) err(rl + '：time 要是 HH:MM');
         else if (times[row.time]) err(rl + '：同一天有兩格同一個時間，簡報對不到是哪一格');
         else times[row.time] = row;
@@ -345,7 +347,7 @@
           }
         } else err(rl + '：cost 要是字串或物件');
         if (row.map != null && !isUrl(row.map)) err(rl + '：map 要是 https:// 網址');
-        else if (row.map == null && NEEDS_MAP[row.type] && SKIP.indexOf(row.plan) < 0 && row.city !== 'Transit') {
+        else if (row.map == null && NEEDS_MAP[row.type] && SKIP.indexOf(row.plan) < 0 && rowCity !== 'Transit') {
           err(rl + '：' + row.type + ' 的格子要有 map（地圖連結）。用搜尋網址，不要組地點網址：'
             + 'https://www.google.com/maps/search/?api=1&query=<地點名> <城市>');
         } else if (row.map != null) {
@@ -353,10 +355,10 @@
           if (!q) {
             err(rl + '：map 只收 https://www.google.com/maps/search/?api=1&query=… '
               + '（或 query=<緯度>,<經度>）。/maps/place/ 帶 CID 的沒查過就是編的，短網址看不出指去哪裡');
-          } else if (!COORD.test(q) && isStr(row.city) && q.indexOf(row.city) < 0 && q.length < 6) {
+          } else if (!COORD.test(q) && isStr(rowCity) && q.indexOf(rowCity) < 0 && q.length < 6) {
             // 同名的店很多。查得到座標最好，不然至少「地點名 城市」，開出來才是一個點。
             warnings.push(rl + '：map 的 query 是「' + q + '」，太短可能開出一列搜尋結果；'
-              + '加上城市（' + row.city + '）或改用座標，他一點就到');
+              + '加上城市（' + rowCity + '）或改用座標，他一點就到');
           }
         }
         if (row.ticket != null && !isUrl(row.ticket)) err(rl + '：ticket 要是 https:// 網址');
