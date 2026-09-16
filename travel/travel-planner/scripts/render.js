@@ -715,7 +715,11 @@
       var p = trip.photos[id];
       if (!p.author && !p.license) return;
       var name = p.title || String(p.commons || p.file || id).replace(/^File:/, '').replace(/^.*[\\/]/, '');
-      credits.push(esc(name) + '：' + esc(creditText(p)) +
+      // CC BY-SA asks for a link to the licence, not just its name. build.mjs caches Commons' LicenseUrl as license_url.
+      var lic = !p.license ? '' : p.license_url
+        ? '<a href="' + attr(p.license_url) + '" target="_blank" rel="noopener">' + esc(p.license) + '<span class="sr">（開新分頁）</span></a>'
+        : esc(p.license);
+      credits.push(esc(name) + '：' + [p.author ? esc(p.author) : '', lic].filter(Boolean).join('，') +
         (p.source ? '，<a href="' + attr(p.source) + '" target="_blank" rel="noopener">來源<span class="sr">（開新分頁）</span></a>' : ''));
     }
     if (m.cover) credit(m.cover.photo);
