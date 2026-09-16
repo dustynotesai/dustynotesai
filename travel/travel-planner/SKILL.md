@@ -53,6 +53,7 @@ description: Use when someone wants to plan a trip — a day-by-day itinerary, "
 沒問就排，等於 ChatGPT。**他說「趕時間、直接給我」也一樣要問**，只是只問這六題。
 **六題一次問完——一則訊息，六題，給選項。** 不准拆成好幾輪，也不准補第七題。
 第 4 題要寫明「用第 3 題的幣別」，他就不必猜該用哪一種幣別回答。
+**他只答了一部分：只補問沒答到的那幾題，不准六題整組重問。**
 完整題目和每一題的理由在 [references/interview.md](references/interview.md)。
 
 1. 幾號到幾號、從哪裡出發
