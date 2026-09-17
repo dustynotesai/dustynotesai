@@ -19,6 +19,10 @@ description: Use when someone wants to plan a trip — a day-by-day itinerary, "
 
 第一組中文、第二組跳回英文是最常見的破綻——**中途不准換語言**，查到的網頁是英文或日文也一樣，翻成中文再寫。
 地名、店名、車站名可以附原文（例如「淺草寺（Sensō-ji）」），方便他到現場對照。
+
+**行程頁（HTML）和 PDF 也照這條。** `trip.json` 的 `meta.language` 決定頁面上的按鈕、標籤、日期用哪個語言：
+繁體不用寫（預設）、簡體寫 `"zh-Hans"`、他指定英文寫 `"en"`；其他語言要在 `meta.labels` 把頁面文字補齊（見 `references/trip-schema.md`）。
+`type`／`plan`／`booking` 永遠寫中文代碼，頁面自己翻；**你寫的內容**（標題、必要指示、費用的字）用同一個語言。
 ⚠️ 這條跟幣別那條不衝突：**幣別要單獨問**，不准從語言猜。
 
 ## 流程（✋ 是一定要停下來等他的地方）

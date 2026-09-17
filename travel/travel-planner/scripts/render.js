@@ -34,9 +34,148 @@
     if (!raw) return null;
     try { return decodeURIComponent(raw.replace(/\+/g, ' ')); } catch (e) { return raw; }
   }
-  var WEEK = '日一二三四五六';
   var CHANNEL = 'https://www.youtube.com/@DustyNotesAI';
-  var NO_FIXED = '無另列定時節點，依現場與訂位安排';
+
+  // ---------- page language ----------
+  // Every fixed word on the page (and so in the PDF) comes from here. meta.language picks
+  // the pack; no language means Traditional Chinese, the audience this was made for.
+  // type／plan／booking stay Chinese codes inside trip.json whatever the language — only
+  // their display changes. Another language has to bring every key in meta.labels;
+  // a built-in one may override single keys there.
+  var LANGS = {
+    'zh-Hant': {
+      lang: 'zh-Hant',
+      fonts: 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&amp;family=Noto+Serif+TC:wght@700&amp;family=Sometype+Mono:wght@400;700&amp;display=swap',
+      font_css: '',
+      weekdays: ['日', '一', '二', '三', '四', '五', '六'],
+      months: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+      date_line: '{m} 月 {d} 日，週{w}　{city}',
+      types: { '交通': '交通', '景點': '景點', '美食': '美食', '拍照': '拍照', '住宿': '住宿', '購物': '購物' },
+      plans: { '規劃中': '規劃中', '備選': '備選', '已取消': '已取消', '沒去': '沒去', '已到訪': '已到訪' },
+      chip_tbc: '待確認', chip_booked: '已訂', chip_reserve: '需預約',
+      why_unverified: '未驗證', why_reserve: '需預約', why_reserve_option: '選擇此備選前需預約', why_booking_tbc: '訂位待確認',
+      why_cost_tbc: '費用待確認', why_cost_unverified: '費用未驗證', why_essential_unverified: '必要指示有未驗證的數字',
+      word_free: '免費', words_included: ['已含', '含在', '依訂單'], word_tbc: '待確認', word_unverified: '未驗證', approx: ['約'],
+      cost_words: '免費…／已含 …／依訂單…／待確認／—',
+      list: '、', semi: '；', comma: '，', colon: '：', paren_open: '（', paren_close: '）', sentence_end: '。',
+      map: '地圖', new_tab: '（開新分頁）', notes_summary: '原始備註與改動', rate_paren: '（匯率 {date}）',
+      brief_aria: 'Day {nn} 每日簡報', route_aria: '今日主線', tonight: '今晚', fixed: '時間節點', attention: '先留意', todo: '待處理',
+      todo_day: '這天有 {n} 項預約或資料要確認', no_fixed: '無另列定時節點，依現場與訂位安排',
+      expand_day: '展開原始備註', expand_all: '展開全部原始備註',
+      js_expand: '展開', js_collapse: '收合', js_all_notes: '全部原始備註', js_notes: '原始備註',
+      photo_prefix: '照片：',
+      f_travellers: '人數', persons: '{n} 人', f_currency: '幣別', local_currency: '當地幣 ', rate_unverified: '匯率未驗證',
+      rate_line: '1 {c} ≈ {rate} {home}，{date} 查', source: '來源', f_budget: '預算', per_day: '每人每天 ', excludes: '，不含',
+      f_pace: '步調', f_wants: '想要', f_booked: '已訂', f_defaults: '預設值', f_checked: '查證', last_checked: '最後核對 ',
+      cover_link: '查看 {md}{what} 行程', journey_aria: '旅行路線',
+      download_pdf: '下載 PDF（精簡版）', links_title: '交通與售票連結', downloads_aria: '行程下載',
+      links_intro: '行程用到的官方網站。請依自己的旅行日期查詢與訂位。',
+      prep: '出發前要準備', official: '官方連結', checklist_summary: '出發前要處理（{n} 項）', apps_summary: '行程用到的 app 與工具',
+      skip: '跳到行程內容', rail_aria: '行程日期', brand: '微塵筆記', brand_small: 'DUSTYNOTES',
+      reading_aria: '開始閱讀', start: '開始看行程', todo_top: '出發前待處理 {n} 項',
+      print_note: 'PDF 精簡版保留每日簡報與必要指示；已取消、沒去的項目及原始長篇備註請見 HTML 行程表。',
+      colophon: '用{link} 的 travel-planner 做的', channel_name: '微塵筆記 DustyNotes'
+    },
+    'zh-Hans': {
+      lang: 'zh-Hans',
+      fonts: 'https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&amp;family=Noto+Serif+SC:wght@700&amp;family=Sometype+Mono:wght@400;700&amp;display=swap',
+      font_css: '\n:root{--serif:"Noto Serif SC","Songti SC","SimSun",serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif}\n@media print{:root{--sans:"Microsoft YaHei","Arial",sans-serif}}\n',
+      weekdays: ['日', '一', '二', '三', '四', '五', '六'],
+      months: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+      date_line: '{m} 月 {d} 日，周{w}　{city}',
+      types: { '交通': '交通', '景點': '景点', '美食': '美食', '拍照': '拍照', '住宿': '住宿', '購物': '购物' },
+      plans: { '規劃中': '规划中', '備選': '备选', '已取消': '已取消', '沒去': '没去', '已到訪': '已到访' },
+      chip_tbc: '待确认', chip_booked: '已订', chip_reserve: '需预约',
+      why_unverified: '未验证', why_reserve: '需预约', why_reserve_option: '选择此备选前需预约', why_booking_tbc: '订位待确认',
+      why_cost_tbc: '费用待确认', why_cost_unverified: '费用未验证', why_essential_unverified: '必要指示有未验证的数字',
+      word_free: '免费', words_included: ['已含', '含在', '依订单'], word_tbc: '待确认', word_unverified: '未验证', approx: ['约'],
+      cost_words: '免费…／已含 …／依订单…／待确认／—',
+      list: '、', semi: '；', comma: '，', colon: '：', paren_open: '（', paren_close: '）', sentence_end: '。',
+      map: '地图', new_tab: '（新标签页打开）', notes_summary: '原始备注与改动', rate_paren: '（汇率 {date}）',
+      brief_aria: 'Day {nn} 每日简报', route_aria: '今日主线', tonight: '今晚', fixed: '时间节点', attention: '先留意', todo: '待处理',
+      todo_day: '这天有 {n} 项预约或资料要确认', no_fixed: '无另列定时节点，依现场与订位安排',
+      expand_day: '展开原始备注', expand_all: '展开全部原始备注',
+      js_expand: '展开', js_collapse: '收起', js_all_notes: '全部原始备注', js_notes: '原始备注',
+      photo_prefix: '照片：',
+      f_travellers: '人数', persons: '{n} 人', f_currency: '币种', local_currency: '当地币 ', rate_unverified: '汇率未验证',
+      rate_line: '1 {c} ≈ {rate} {home}，{date} 查', source: '来源', f_budget: '预算', per_day: '每人每天 ', excludes: '，不含',
+      f_pace: '节奏', f_wants: '想要', f_booked: '已订', f_defaults: '默认值', f_checked: '查证', last_checked: '最后核对 ',
+      cover_link: '查看 {md}{what} 行程', journey_aria: '旅行路线',
+      download_pdf: '下载 PDF（精简版）', links_title: '交通与售票链接', downloads_aria: '行程下载',
+      links_intro: '行程用到的官方网站。请按自己的旅行日期查询与订位。',
+      prep: '出发前要准备', official: '官方链接', checklist_summary: '出发前要处理（{n} 项）', apps_summary: '行程用到的 app 与工具',
+      skip: '跳到行程内容', rail_aria: '行程日期', brand: '微塵筆記', brand_small: 'DUSTYNOTES',
+      reading_aria: '开始阅读', start: '开始看行程', todo_top: '出发前待处理 {n} 项',
+      print_note: 'PDF 精简版保留每日简报与必要指示；已取消、没去的项目及原始长篇备注请见 HTML 行程表。',
+      colophon: '用{link} 的 travel-planner 做的', channel_name: '微塵筆記 DustyNotes'
+    },
+    en: {
+      lang: 'en',
+      fonts: 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&amp;family=Noto+Serif+TC:wght@700&amp;family=Sometype+Mono:wght@400;700&amp;display=swap',
+      // English labels ("Fixed times", "Travellers") need a wider label column than two CJK characters
+      font_css: '\n.brief-meta>div,.trip-facts>div{grid-template-columns:96px minmax(0,1fr)}\n',
+      weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      date_line: '{w}, {mon} {d} · {city}',
+      types: { '交通': 'Transport', '景點': 'Sight', '美食': 'Food', '拍照': 'Photo', '住宿': 'Stay', '購物': 'Shopping' },
+      plans: { '規劃中': 'Planned', '備選': 'Alternative', '已取消': 'Cancelled', '沒去': 'Skipped', '已到訪': 'Visited' },
+      chip_tbc: 'To confirm', chip_booked: 'Booked', chip_reserve: 'Book ahead',
+      why_unverified: 'Unverified', why_reserve: 'Book ahead', why_reserve_option: 'Book ahead if you pick this one', why_booking_tbc: 'Booking to confirm',
+      why_cost_tbc: 'Cost to confirm', why_cost_unverified: 'Cost unverified', why_essential_unverified: 'Directions include unverified numbers',
+      word_free: 'Free', words_included: ['Included', 'Covered by', 'Per booking'], word_tbc: 'TBC', word_unverified: 'unverified', approx: ['~', '≈', 'approx', 'about', 'around'],
+      cost_words: 'Free…／Included …／Covered by …／Per booking …／TBC／—',
+      list: ', ', semi: '; ', comma: ', ', colon: ': ', paren_open: ' (', paren_close: ')', sentence_end: '. ',
+      map: 'Map', new_tab: ' (opens in a new tab)', notes_summary: 'Original notes and changes', rate_paren: ' (rate {date})',
+      brief_aria: 'Day {nn} briefing', route_aria: 'Today’s route', tonight: 'Tonight', fixed: 'Fixed times', attention: 'Heads-up', todo: 'To do',
+      todo_day: '{n} bookings or details to confirm today', no_fixed: 'No fixed times; go by bookings and the day itself',
+      expand_day: 'Show original notes', expand_all: 'Show all original notes',
+      js_expand: 'Show', js_collapse: 'Hide', js_all_notes: ' all original notes', js_notes: ' original notes',
+      photo_prefix: 'Photo: ',
+      f_travellers: 'Travellers', persons: '{n}', f_currency: 'Currency', local_currency: 'local ', rate_unverified: 'rate unverified',
+      rate_line: '1 {c} ≈ {rate} {home}, checked {date}', source: 'source', f_budget: 'Budget', per_day: 'per person per day ', excludes: ', excluding ',
+      f_pace: 'Pace', f_wants: 'Priorities', f_booked: 'Booked', f_defaults: 'Assumed', f_checked: 'Research', last_checked: 'last checked ',
+      cover_link: 'See {md}{what}', journey_aria: 'Route',
+      download_pdf: 'Download PDF (compact)', links_title: 'Transport and tickets', downloads_aria: 'Downloads',
+      links_intro: 'The official sites this itinerary uses. Check and book for your own dates.',
+      prep: 'Before you go', official: 'Official site', checklist_summary: 'To handle before you go ({n})', apps_summary: 'Apps and tools used',
+      skip: 'Skip to the itinerary', rail_aria: 'Trip days', brand: 'DustyNotes', brand_small: '微塵筆記',
+      reading_aria: 'Start reading', start: 'Start with day one', todo_top: '{n} to handle before you go',
+      print_note: 'This compact PDF keeps each day’s briefing and essential directions; cancelled or skipped items and the full original notes are in the HTML itinerary.',
+      colophon: 'Made with {link}’s travel-planner', channel_name: 'DustyNotes'
+    }
+  };
+  var OPTIONAL_LABELS = { fonts: 1, font_css: 1, cost_words: 1 };
+  var FIXED_LENGTH = { weekdays: 7, months: 12 };
+
+  // The pack for this trip: built-in language (default zh-Hant), then meta.labels on top.
+  // An unknown language starts from en for structure; validation insists labels cover it all.
+  function pack(trip) {
+    var m = (trip && trip.meta) || {};
+    var base = m.language == null ? LANGS['zh-Hant'] : LANGS[m.language] || LANGS.en;
+    var over = m.labels && typeof m.labels === 'object' && !Array.isArray(m.labels) ? m.labels : {};
+    if (base === LANGS['zh-Hant'] && !Object.keys(over).length) return base;
+    var out = {};
+    Object.keys(base).forEach(function (k) { out[k] = base[k]; });
+    Object.keys(over).forEach(function (k) {
+      if (base[k] && typeof base[k] === 'object' && !Array.isArray(base[k]) && over[k] && typeof over[k] === 'object' && !Array.isArray(over[k])) {
+        var merged = {};
+        Object.keys(base[k]).forEach(function (j) { merged[j] = base[k][j]; });
+        Object.keys(over[k]).forEach(function (j) { merged[j] = over[k][j]; });
+        out[k] = merged;
+      } else out[k] = over[k];
+    });
+    return out;
+  }
+  function fmt(tpl, vars) {
+    return String(tpl).replace(/\{(\w+)\}/g, function (all, k) { return vars[k] == null ? all : String(vars[k]); });
+  }
+  function lower(s) { return String(s == null ? '' : s).toLowerCase(); }
+  function hasWord(text, word) { return lower(text).indexOf(lower(word)) >= 0; }
+  function isUnverifiedRate(rate, L) { return rate === '未驗證' || (typeof rate === 'string' && lower(rate) === lower(L.word_unverified)); }
+  // single-quoted JS string literal, safe inside <script>
+  function jsStr(v) {
+    return "'" + String(v).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/</g, '\\u003c').replace(/\n/g, '\\n') + "'";
+  }
 
   // ---------- text ----------
   function esc(s) {
@@ -92,18 +231,19 @@
 
   // Outcome (已取消/沒去) wins over everything. Otherwise one booking chip
   // (待確認, 已訂, or 需預約 when not booked) and then the plan marker.
-  function chipsFor(row) {
-    if (isSkipped(row)) return [{ cls: 'skip', text: row.plan }];
+  function chipsFor(row, trip) {
+    var L = pack(trip);
+    if (isSkipped(row)) return [{ cls: 'skip', text: L.plans[row.plan] || row.plan }];
     var out = [];
-    if (row.booking === '待確認') out.push({ cls: 'need', text: '待確認' });
-    else if (row.booking === '已訂') out.push({ cls: 'ok', text: '已訂', icon: true });
-    else if (row.booking === '需預約') out.push({ cls: 'need', text: '需預約' });
-    if (row.plan === '備選') out.push({ cls: 'opt', text: '備選' });
-    if (row.plan === '已到訪') out.push({ cls: 'done', text: '已到訪' });
+    if (row.booking === '待確認') out.push({ cls: 'need', text: L.chip_tbc });
+    else if (row.booking === '已訂') out.push({ cls: 'ok', text: L.chip_booked, icon: true });
+    else if (row.booking === '需預約') out.push({ cls: 'need', text: L.chip_reserve });
+    if (row.plan === '備選') out.push({ cls: 'opt', text: L.plans['備選'] });
+    if (row.plan === '已到訪') out.push({ cls: 'done', text: L.plans['已到訪'] });
     return out;
   }
-  function chipsHtml(row) {
-    return chipsFor(row).map(function (c) {
+  function chipsHtml(row, trip) {
+    return chipsFor(row, trip).map(function (c) {
       return '<span class="chip ' + c.cls + '">' + (c.icon ? CHECK : '') + esc(c.text) + '</span>';
     }).join('');
   }
@@ -126,15 +266,16 @@
   function costView(cost, trip) {
     if (cost == null || cost === '' || cost === '—') return null;
     if (typeof cost === 'string') return { text: cost, note: '' };
+    var L = pack(trip);
     var parts = [];
     if (cost.home) {
       var date = cost.rate_date;
       if (!date && cost.currency) { var r = rateFor(trip, cost.currency); date = r && r.date; }
-      parts.push(cost.home + (date ? '（匯率 ' + date + '）' : ''));
+      parts.push(cost.home + (date ? fmt(L.rate_paren, { date: date }) : ''));
     }
     if (cost.total || cost.payment) parts.push((cost.total || '') + (cost.payment || ''));
     if (cost.note) parts.push(cost.note);
-    return { text: cost.per_person || '', note: parts.join('；') };
+    return { text: cost.per_person || '', note: parts.join(L.semi) };
   }
 
   function stopTitle(row) {
@@ -166,19 +307,20 @@
 
   // Rows the reader has to check before leaving.
   function checklist(trip) {
+    var L = pack(trip);
     var items = [];
     (trip.days || []).forEach(function (day) {
       (day.rows || []).forEach(function (row) {
         if (isSkipped(row)) return;
         var why = [];
-        if (row.verified === false) why.push('未驗證');
-        if (row.booking === '需預約' && row.plan !== '已到訪') why.push(row.plan === '備選' ? '選擇此備選前需預約' : '需預約');
-        if (row.booking === '待確認') why.push('訂位待確認');
+        if (row.verified === false) why.push(L.why_unverified);
+        if (row.booking === '需預約' && row.plan !== '已到訪') why.push(row.plan === '備選' ? L.why_reserve_option : L.why_reserve);
+        if (row.booking === '待確認') why.push(L.why_booking_tbc);
         var c = costView(row.cost, trip);
         var costText = c ? c.text + ' ' + c.note : '';
-        if (/待確認/.test(costText)) why.push('費用待確認');
-        if (/未驗證/.test(costText)) why.push('費用未驗證');
-        if (/未驗證/.test(row.essential || '') && why.indexOf('未驗證') < 0) why.push('必要指示有未驗證的數字');
+        if (hasWord(costText, L.word_tbc)) why.push(L.why_cost_tbc);
+        if (hasWord(costText, L.word_unverified)) why.push(L.why_cost_unverified);
+        if (hasWord(row.essential || '', L.word_unverified) && why.indexOf(L.why_unverified) < 0) why.push(L.why_essential_unverified);
         if (why.length) items.push({ day: day, row: row, why: why });
       });
     });
@@ -191,8 +333,10 @@
   function isUrl(x) { return typeof x === 'string' && /^https?:\/\/\S+$/.test(x); }
   var TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
-  function validCostString(s) {
-    return s === '—' || /^免費/.test(s) || /^(已含|含在|依訂單)/.test(s) || s.indexOf('待確認') >= 0;
+  function validCostString(s, L) {
+    var t = lower(s);
+    return s === '—' || t.indexOf(lower(L.word_free)) === 0 ||
+      L.words_included.some(function (w) { return t.indexOf(lower(w)) === 0; }) || t.indexOf(lower(L.word_tbc)) >= 0;
   }
 
   // Returns { errors: [..], warnings: [..] }. Structural only — build.mjs adds
@@ -218,6 +362,7 @@
     })(trip, 'trip');
 
     var meta = trip.meta;
+    var L = pack(trip);
     var home = null, locals = [];
     var start = null, end = null;
     if (!isObj(meta)) err('meta：缺少');
@@ -244,7 +389,7 @@
             var p = 'meta.currency.rates[' + i + ']';
             if (!isObj(r) || !isStr(r.from)) { err(p + '：要有 from'); return; }
             if (r.to && home && r.to !== home) err(p + '：to 要等於 meta.currency.home（' + home + '）');
-            if (r.rate === '未驗證') return;
+            if (isUnverifiedRate(r.rate, L)) return;
             if (!(typeof r.rate === 'number' && r.rate > 0)) err(p + '：rate 要是大於 0 的數字，查不到就寫 "未驗證"');
             if (!parseDate(r.date)) err(p + '：date 要是查匯率那天 YYYY-MM-DD');
           });
@@ -259,6 +404,29 @@
         if (!Array.isArray(meta.downloads)) err('meta.downloads：要是陣列');
         else meta.downloads.forEach(function (d, i) {
           if (!isObj(d) || !isStr(d.label) || !isStr(d.href)) err('meta.downloads[' + i + ']：要有 label 和 href');
+        });
+      }
+      if (meta.language != null && typeof meta.language !== 'string') err('meta.language：要是字串，例如 "zh-Hant"、"zh-Hans"、"en"');
+      if (meta.labels != null && !isObj(meta.labels)) err('meta.labels：要是物件 { "map": "…" }');
+      if (typeof meta.language === 'string' && !LANGS[meta.language]) {
+        var given = isObj(meta.labels) ? meta.labels : {};
+        var missing = Object.keys(LANGS['zh-Hant']).filter(function (k) {
+          if (OPTIONAL_LABELS[k]) return false;
+          var ref = LANGS['zh-Hant'][k], v = given[k];
+          if (Array.isArray(ref)) {
+            return !Array.isArray(v) || !v.length || !v.every(isStr) || (FIXED_LENGTH[k] && v.length !== FIXED_LENGTH[k]);
+          }
+          if (isObj(ref)) return !isObj(v) || Object.keys(ref).some(function (j) { return !isStr(v[j]); });
+          return typeof v !== 'string';
+        });
+        if (missing.length) {
+          err('meta.language「' + meta.language + '」沒有內建的頁面文字（內建：' + Object.keys(LANGS).join('、') + '）：' +
+            'meta.labels 要補齊 ' + missing.join('、') + '，照 zh-Hant 那一份的鍵翻成這個語言');
+        }
+      }
+      if (isObj(meta.labels)) {
+        Object.keys(meta.labels).forEach(function (k) {
+          if (!Object.prototype.hasOwnProperty.call(LANGS['zh-Hant'], k)) warnings.push('meta.labels.' + k + '：不認得，頁面上不會用到');
         });
       }
       if (meta.prep != null) {
@@ -333,16 +501,19 @@
         var c = row.cost;
         if (c == null) err(rl + '：cost 缺少（沒有費用可列就寫 "—"）');
         else if (typeof c === 'string') {
-          if (!validCostString(c)) err(rl + '：cost 字串只能是 免費…／已含 …／依訂單…／待確認／—；「' + c + '」要寫成 { "per_person": "' + c + '" }');
+          if (!validCostString(c, L)) {
+            var words = L.cost_words || L.word_free + '…／' + L.words_included.map(function (w) { return w + ' …'; }).join('／') + '／' + L.word_tbc + '／—';
+            err(rl + '：cost 字串只能是 ' + words + '；「' + c + '」要寫成 { "per_person": "' + c + '" }');
+          }
         } else if (isObj(c)) {
           if (!isStr(c.per_person)) err(rl + '：cost.per_person 缺少（每人、當地幣，例如 "€18／人"）');
           if (c.currency != null && home && c.currency !== home && locals.indexOf(c.currency) < 0) {
             err(rl + '：cost.currency ' + c.currency + ' 不在 meta.currency.local 裡');
           }
           if (c.home != null) {
-            if (!/約/.test(String(c.home))) err(rl + '：cost.home 是換算，要標「約」');
+            if (!L.approx.some(function (w) { return hasWord(c.home, w); })) err(rl + '：cost.home 是換算，要標「' + L.approx[0] + '」');
             var rate = c.currency ? rateFor(trip, c.currency) : null;
-            if (rate && rate.rate === '未驗證') err(rl + '：' + c.currency + ' 的匯率未驗證，不要換算 cost.home，只寫當地幣');
+            if (rate && isUnverifiedRate(rate.rate, L)) err(rl + '：' + c.currency + ' 的匯率未驗證，不要換算 cost.home，只寫當地幣');
             else if (!c.rate_date && !(rate && rate.date)) err(rl + '：cost.home 要有匯率日期（cost.rate_date，或 cost.currency 對到 meta.currency.rates）');
           }
         } else err(rl + '：cost 要是字串或物件');
@@ -463,13 +634,15 @@
 
   // ---------- markup ----------
   function rowHtml(trip, day, row) {
+    var L = pack(trip);
+    var newTab = '<span class="sr">' + esc(L.new_tab) + '</span>';
     var tcls = TYPE[row.type] || 'other';
     var skipped = isSkipped(row);
     var links = [];
-    if (row.map) links.push('<a href="' + attr(row.map) + '" target="_blank" rel="noopener">地圖<span class="sr">（開新分頁）</span></a>');
+    if (row.map) links.push('<a href="' + attr(row.map) + '" target="_blank" rel="noopener">' + esc(L.map) + newTab + '</a>');
     if (row.ticket) {
       links.push('<a href="' + attr(row.ticket) + '" target="_blank" rel="noopener" title="' + attr(row.ticket) + '">' +
-        esc(ticketDomain(row.ticket)) + '<span class="sr">（開新分頁）</span></a>');
+        esc(ticketDomain(row.ticket)) + newTab + '</a>');
     }
     var cost = costView(row.cost, trip);
     var costline = cost && cost.text
@@ -482,7 +655,7 @@
     if (notes.length) {
       var body = notes.map(function (n) { return '<p>' + noteHtml(n) + '</p>'; }).join('');
       note = row.essential
-        ? '<details class="note"><summary>原始備註與改動</summary><div class="more">' + body + '</div></details>'
+        ? '<details class="note"><summary>' + esc(L.notes_summary) + '</summary><div class="more">' + body + '</div></details>'
         : '<div class="note one">' + body + '</div>';
     }
     var photo = '';
@@ -492,13 +665,13 @@
         (credit ? '<figcaption class="credit">' + esc(credit) + '</figcaption>' : '') + '</figure>';
     }
     return '\n        <li class="row ' + tcls + (skipped ? ' skipped' : '') + '" id="' + rowId(day, row) + '" tabindex="-1">' +
-      '\n          <div class="tk-col"><time class="t">' + esc(row.time) + '</time><span class="k">' + esc(row.type) + '</span></div>' +
-      '\n          <div class="a"><div class="act"><span class="name">' + esc(row.act) + '</span>' + chipsHtml(row) + '</div>' + essential + photo + note + '</div>' +
+      '\n          <div class="tk-col"><time class="t">' + esc(row.time) + '</time><span class="k">' + esc(L.types[row.type] || row.type) + '</span></div>' +
+      '\n          <div class="a"><div class="act"><span class="name">' + esc(row.act) + '</span>' + chipsHtml(row, trip) + '</div>' + essential + photo + note + '</div>' +
       '\n          ' + linkhtml +
       '\n        </li>';
   }
 
-  function briefHtml(day, pending) {
+  function briefHtml(day, pending, L) {
     var byTime = {};
     day.rows.forEach(function (r) { byTime[r.time] = r; });
     function stop(t) {
@@ -508,30 +681,31 @@
     var b = day.brief;
     var route = b.route.filter(function (t) { return byTime[t] && !isSkipped(byTime[t]); })
       .map(function (t) { return '<li>' + stop(t) + '</li>'; }).join('');
-    var fixed = (b.fixed || []).filter(function (t) { return byTime[t]; }).map(stop).join('、') || NO_FIXED;
-    return '<section class="brief" aria-label="Day ' + pad2(day.n) + ' 每日簡報">' +
-      '\n          <ol class="day-route" aria-label="今日主線">' + route + '</ol>' +
+    var fixed = (b.fixed || []).filter(function (t) { return byTime[t]; }).map(stop).join(esc(L.list)) || esc(L.no_fixed);
+    return '<section class="brief" aria-label="' + attr(fmt(L.brief_aria, { nn: pad2(day.n) })) + '">' +
+      '\n          <ol class="day-route" aria-label="' + attr(L.route_aria) + '">' + route + '</ol>' +
       '\n          <dl class="brief-meta">' +
-      '\n            <div><dt>今晚</dt><dd>' + esc(b.stay) + '</dd></div>' +
-      '\n            <div><dt>時間節點</dt><dd>' + fixed + '</dd></div>' +
-      '\n            <div class="attention"><dt>先留意</dt><dd>' + esc(b.attention) + '</dd></div>' +
-      (pending ? '\n            <div class="attention"><dt>待處理</dt><dd><a href="#checklist">這天有 ' + pending + ' 項預約或資料要確認</a></dd></div>' : '') +
+      '\n            <div><dt>' + esc(L.tonight) + '</dt><dd>' + esc(b.stay) + '</dd></div>' +
+      '\n            <div><dt>' + esc(L.fixed) + '</dt><dd>' + fixed + '</dd></div>' +
+      '\n            <div class="attention"><dt>' + esc(L.attention) + '</dt><dd>' + esc(b.attention) + '</dd></div>' +
+      (pending ? '\n            <div class="attention"><dt>' + esc(L.todo) + '</dt><dd><a href="#checklist">' + esc(fmt(L.todo_day, { n: pending })) + '</a></dd></div>' : '') +
       '\n          </dl>' +
       '\n        </section>';
   }
 
   function dayHtml(trip, day) {
+    var L = pack(trip);
     var d = parseDate(day.date);
     return '\n      <article class="day" id="day-' + pad2(day.n) + '" data-day="' + day.n + '" tabindex="-1">' +
       '\n        <header class="dayhead">' +
       '\n          <span class="idx">' + pad2(day.n) + '</span>' +
       '\n          <div class="meta">' +
-      '\n            <p class="date">' + (d.getUTCMonth() + 1) + ' 月 ' + d.getUTCDate() + ' 日，週' + WEEK[d.getUTCDay()] + '　' + esc(day.city) + '</p>' +
+      '\n            <p class="date">' + esc(fmt(L.date_line, { m: d.getUTCMonth() + 1, mon: L.months[d.getUTCMonth()], d: d.getUTCDate(), w: L.weekdays[d.getUTCDay()], city: day.city })) + '</p>' +
       '\n            <h3>' + esc(day.title) + '</h3>' +
       '\n          </div>' +
-      '\n          <div class="tools" hidden><button type="button" class="tg" data-scope="day">展開原始備註</button></div>' +
+      '\n          <div class="tools" hidden><button type="button" class="tg" data-scope="day">' + esc(L.expand_day) + '</button></div>' +
       '\n        </header>' +
-      '\n        ' + briefHtml(day, checklist({ meta: trip.meta, days: [day] }).length) +
+      '\n        ' + briefHtml(day, checklist({ meta: trip.meta, days: [day] }).length, L) +
       '\n        <ol class="rows">' + day.rows.map(function (r) { return rowHtml(trip, day, r); }).join('') +
       '\n        </ol>' +
       '\n      </article>';
@@ -550,64 +724,67 @@
     var dates = s.dates || (all.length > 1 ? md(first) + ' – ' + md(last) : md(first));
     var photo = s.photo && trip.photos ? trip.photos[s.photo] : null;
     var credit = creditText(photo);
+    var L = pack(trip);
     return '\n    <section class="city">' + lead +
       '\n      <figure class="hero">' + (photo ? '<img src="' + attr(photoSrc(photo)) + '" alt="" loading="lazy">' : '') +
       '\n        <figcaption><h2>' + esc(s.name) + '</h2><span class="latin">' + (s.latin ? esc(s.latin) + ' · ' : '') + esc(dates) + '</span>' +
-      (credit ? '<small class="credit">照片：' + esc(credit) + '</small>' : '') + '</figcaption>' +
+      (credit ? '<small class="credit">' + esc(L.photo_prefix) + esc(credit) + '</small>' : '') + '</figcaption>' +
       '\n      </figure>' +
       '\n      ' + own.map(function (n) { return dayHtml(trip, byN[n]); }).join('') +
       '\n    </section>';
   }
 
   function factsHtml(trip) {
+    var L = pack(trip);
+    var newTab = '<span class="sr">' + esc(L.new_tab) + '</span>';
     var m = trip.meta, rows = [];
     function row(dt, dd) { rows.push('<div><dt>' + dt + '</dt><dd>' + dd + '</dd></div>'); }
     var t = m.travellers || {};
-    if (t.count) row('人數', esc(t.count + ' 人' + (t.who ? '，' + t.who : '')));
+    if (t.count) row(esc(L.f_travellers), esc(fmt(L.persons, { n: t.count }) + (t.who ? L.comma + t.who : '')));
     var cur = m.currency || {};
     if (cur.home) {
       // TWD；當地幣 EUR（1 EUR ≈ 37.25 TWD，2026-09-15 查，來源）、CHF（匯率未驗證）
       var locals = (cur.local || []).filter(function (c) { return c !== cur.home; });
       var rated = locals.map(function (c) {
         var r = rateFor(trip, c);
-        if (!r || r.rate === '未驗證') return { c: c, text: null };
+        if (!r || isUnverifiedRate(r.rate, L)) return { c: c, text: null };
         return {
           c: c,
-          text: esc('1 ' + c + ' ≈ ' + r.rate + ' ' + cur.home + '，' + r.date + ' 查') +
-            (r.source ? '，<a href="' + attr(r.source) + '" target="_blank" rel="noopener">來源<span class="sr">（開新分頁）</span></a>' : '')
+          text: esc(fmt(L.rate_line, { c: c, rate: r.rate, home: cur.home, date: r.date })) +
+            (r.source ? esc(L.comma) + '<a href="' + attr(r.source) + '" target="_blank" rel="noopener">' + esc(L.source) + newTab + '</a>' : '')
         };
       });
       var dd = esc(cur.home);
       if (locals.length) {
-        dd += '；當地幣 ' + (rated.every(function (x) { return !x.text; })
-          ? esc(locals.join('、')) + '（匯率未驗證）'
-          : rated.map(function (x) { return esc(x.c) + '（' + (x.text || '匯率未驗證') + '）'; }).join('、'));
+        dd += esc(L.semi + L.local_currency) + (rated.every(function (x) { return !x.text; })
+          ? esc(locals.join(L.list)) + esc(L.paren_open + L.rate_unverified + L.paren_close)
+          : rated.map(function (x) { return esc(x.c) + esc(L.paren_open) + (x.text || esc(L.rate_unverified)) + esc(L.paren_close); }).join(esc(L.list)));
       }
-      row('幣別', dd);
+      row(esc(L.f_currency), dd);
     }
     var bud = m.budget;
     if (bud && bud.per_person_per_day != null) {
-      row('預算', esc('每人每天 ' + (cur.home ? cur.home + ' ' : '') + bud.per_person_per_day + (bud.excludes ? '，不含' + bud.excludes : '')));
+      row(esc(L.f_budget), esc(L.per_day + (cur.home ? cur.home + ' ' : '') + bud.per_person_per_day + (bud.excludes ? L.excludes + bud.excludes : '')));
     }
-    if (m.pace) row('步調', esc(m.pace));
-    if (m.wants && m.wants.length) row('想要', esc(m.wants.join('、')));
+    if (m.pace) row(esc(L.f_pace), esc(m.pace));
+    if (m.wants && m.wants.length) row(esc(L.f_wants), esc(m.wants.join(L.list)));
     if (m.booked && m.booked.length) {
-      row('已訂', esc(m.booked.map(function (b) {
+      row(esc(L.f_booked), esc(m.booked.map(function (b) {
         var d = parseDate(b.date);
-        return b.what + (d ? '（' + md(d) + '）' : '');
-      }).join('、')));
+        return b.what + (d ? L.paren_open + md(d) + L.paren_close : '');
+      }).join(L.list)));
     }
-    if (m.defaults && m.defaults.length) row('預設值', esc(m.defaults.join('；')));
+    if (m.defaults && m.defaults.length) row(esc(L.f_defaults), esc(m.defaults.join(L.semi)));
     var checked = [];
-    if (m.researched_with && m.researched_with.length) checked.push(m.researched_with.join('、'));
-    if (m.checked_on) checked.push('最後核對 ' + m.checked_on);
-    if (checked.length) row('查證', esc(checked.join('；')));
+    if (m.researched_with && m.researched_with.length) checked.push(m.researched_with.join(L.list));
+    if (m.checked_on) checked.push(L.last_checked + m.checked_on);
+    if (checked.length) row(esc(L.f_checked), esc(checked.join(L.semi)));
     return rows.length ? '\n      <dl class="trip-facts">' + rows.join('') + '</dl>' : '';
   }
 
-  function noticeHtml(text) {
+  function noticeHtml(text, L) {
     text = String(text);
-    var i = text.indexOf('。');
+    var i = text.indexOf(L.sentence_end);
     if (i >= 0 && i < text.length - 1) return '<b>' + esc(text.slice(0, i + 1)) + '</b>' + esc(text.slice(i + 1));
     return esc(text);
   }
@@ -615,6 +792,8 @@
   // renderTrip(trip, { pdf: 'trip.pdf' }) → full HTML document string.
   function renderTrip(trip, options) {
     options = options || {};
+    var L = pack(trip);
+    var newTab = '<span class="sr">' + esc(L.new_tab) + '</span>';
     var m = trip.meta;
     var days = trip.days.slice().sort(function (a, b) { return a.n - b.n; });
     var byN = {};
@@ -639,19 +818,19 @@
       var link = '';
       if (m.cover.day != null && byN[m.cover.day]) {
         var segs = capText.split(' · ');
-        var what = m.cover.link_text || ('查看 ' + md(parseDate(byN[m.cover.day].date)) + (capText ? ' ' + segs[segs.length - 1] : '') + ' 行程');
+        var what = m.cover.link_text || fmt(L.cover_link, { md: md(parseDate(byN[m.cover.day].date)), what: capText ? ' ' + segs[segs.length - 1] : '' });
         link = '<a href="#day-' + pad2(m.cover.day) + '">' + esc(what) + '</a>';
       }
       var ccredit = creditText(cp);
       cover = '\n      <figure class="cover">' +
         '\n        <img src="' + attr(photoSrc(cp)) + '"' + size + ' alt="' + attr(cp.alt || '') + '" fetchpriority="high">' +
-        '\n        <figcaption><span>' + esc(capText) + (ccredit ? '<small class="credit">照片：' + esc(ccredit) + '</small>' : '') + '</span>' + link + '</figcaption>' +
+        '\n        <figcaption><span>' + esc(capText) + (ccredit ? '<small class="credit">' + esc(L.photo_prefix) + esc(ccredit) + '</small>' : '') + '</span>' + link + '</figcaption>' +
         '\n      </figure>';
     }
 
     var journey = '';
     if (m.route && m.route.length) {
-      journey = '\n      <ol class="journey" aria-label="旅行路線" style="--stops:' + Math.min(m.route.length, 8) + '">' +
+      journey = '\n      <ol class="journey" aria-label="' + attr(L.journey_aria) + '" style="--stops:' + Math.min(m.route.length, 8) + '">' +
         m.route.map(function (r) {
           var inner = esc(r.name) + (r.dates ? '<small>' + esc(r.dates) + '</small>' : '');
           return '\n        <li>' + (r.day != null && byN[r.day] ? '<a href="#day-' + pad2(r.day) + '">' + inner + '</a>' : '<span>' + inner + '</span>') + '</li>';
@@ -663,11 +842,11 @@
     var sites = links.sites || [], apps = links.apps || [];
     var hasLinks = sites.length || apps.length;
     var downloads = [];
-    if (options.pdf) downloads.push('<a href="' + attr(options.pdf) + '" download>下載 PDF（精簡版）</a>');
+    if (options.pdf) downloads.push('<a href="' + attr(options.pdf) + '" download>' + esc(L.download_pdf) + '</a>');
     (m.downloads || []).forEach(function (d) { downloads.push('<a href="' + attr(d.href) + '" download>' + esc(d.label) + '</a>'); });
-    if (hasLinks) downloads.push('<a href="#apps">交通與售票連結</a>');
+    if (hasLinks) downloads.push('<a href="#apps">' + esc(L.links_title) + '</a>');
     var downloadsHtml = downloads.length
-      ? '\n      <nav class="downloads" aria-label="行程下載">' + downloads.map(function (a) { return '\n        ' + a; }).join('') + '\n      </nav>'
+      ? '\n      <nav class="downloads" aria-label="' + attr(L.downloads_aria) + '">' + downloads.map(function (a) { return '\n        ' + a; }).join('') + '\n      </nav>'
       : '';
 
     var appsHtml = apps.map(function (a) {
@@ -675,34 +854,34 @@
     }).join('');
     var sitesHtml = sites.map(function (s) {
       return '<div class="site"><a class="dom" href="' + attr(s.url || 'https://' + s.domain) + '" target="_blank" rel="noopener">' + esc(s.domain) +
-        '<span class="sr">（開新分頁）</span></a><span>' + esc(s['for'] || '') + '</span></div>';
+        newTab + '</a><span>' + esc(s['for'] || '') + '</span></div>';
     }).join('');
-    var intro = links.intro || ['行程用到的官方網站。請依自己的旅行日期查詢與訂位。'];
+    var intro = links.intro || [L.links_intro];
 
     // Documents and preparations before departure (visa, driving permit, insurance…).
     var prepHtml = (m.prep && m.prep.length)
-      ? '\n      <section class="prep" aria-label="出發前要準備">\n        <h2>出發前要準備</h2><ul>' +
+      ? '\n      <section class="prep" aria-label="' + attr(L.prep) + '">\n        <h2>' + esc(L.prep) + '</h2><ul>' +
         m.prep.map(function (p) {
           return '<li><b>' + esc(p.item) + '</b>' + (p.detail ? '<span>' + esc(p.detail) + '</span>' : '') +
-            (p.link ? '<a href="' + attr(p.link) + '" target="_blank" rel="noopener">官方連結<span class="sr">（開新分頁）</span></a>' : '') + '</li>';
+            (p.link ? '<a href="' + attr(p.link) + '" target="_blank" rel="noopener">' + esc(L.official) + newTab + '</a>' : '') + '</li>';
         }).join('') + '</ul>\n      </section>'
       : '';
 
     var todo = checklist(trip);
     var todoHtml = todo.length
-      ? '\n      <details class="resources checklist" id="checklist"><summary>出發前要處理（' + todo.length + ' 項）</summary><ul>' +
+      ? '\n      <details class="resources checklist" id="checklist"><summary>' + esc(fmt(L.checklist_summary, { n: todo.length })) + '</summary><ul>' +
         todo.map(function (it) {
           return '<li><a href="#' + rowId(it.day, it.row) + '"><time>' + pad2(it.day.n) + ' · ' + esc(it.row.time) + '</time> ' + esc(stopTitle(it.row)) + '</a>' +
-            '<span>' + esc(it.why.join('、')) + '</span></li>';
+            '<span>' + esc(it.why.join(L.list)) + '</span></li>';
         }).join('') + '</ul></details>'
       : '';
 
     var appsSection = hasLinks || todo.length
       ? '\n    <section class="apps" id="apps">' +
-        '\n      <h2>交通與售票連結</h2>' +
+        '\n      <h2>' + esc(L.links_title) + '</h2>' +
         intro.map(function (p) { return '\n      <p class="sub">' + esc(p) + '</p>'; }).join('') +
         (sites.length ? '\n      <div class="sitegrid">' + sitesHtml + '</div>' : '') +
-        (apps.length ? '\n      <details class="resources"><summary>行程用到的 app 與工具</summary><div class="appgrid">' + appsHtml + '</div></details>' : '') +
+        (apps.length ? '\n      <details class="resources"><summary>' + esc(L.apps_summary) + '</summary><div class="appgrid">' + appsHtml + '</div></details>' : '') +
         todoHtml +
         '\n    </section>'
       : '';
@@ -717,29 +896,33 @@
       var name = p.title || String(p.commons || p.file || id).replace(/^File:/, '').replace(/^.*[\\/]/, '');
       // CC BY-SA asks for a link to the licence, not just its name. build.mjs caches Commons' LicenseUrl as license_url.
       var lic = !p.license ? '' : p.license_url
-        ? '<a href="' + attr(p.license_url) + '" target="_blank" rel="noopener">' + esc(p.license) + '<span class="sr">（開新分頁）</span></a>'
+        ? '<a href="' + attr(p.license_url) + '" target="_blank" rel="noopener">' + esc(p.license) + newTab + '</a>'
         : esc(p.license);
-      credits.push(esc(name) + '：' + [p.author ? esc(p.author) : '', lic].filter(Boolean).join('，') +
-        (p.source ? '，<a href="' + attr(p.source) + '" target="_blank" rel="noopener">來源<span class="sr">（開新分頁）</span></a>' : ''));
+      credits.push(esc(name) + esc(L.colon) + [p.author ? esc(p.author) : '', lic].filter(Boolean).join(esc(L.comma)) +
+        (p.source ? esc(L.comma) + '<a href="' + attr(p.source) + '" target="_blank" rel="noopener">' + esc(L.source) + newTab + '</a>' : ''));
     }
     if (m.cover) credit(m.cover.photo);
     trip.sections.forEach(function (s) { credit(s.photo); });
     days.forEach(function (d) { d.rows.forEach(function (r) { credit(r.photo); }); });
 
     var title = m.page_title || m.title;
-    return '<!doctype html>\n<html lang="zh-Hant">\n<head>\n<meta charset="utf-8">\n' +
+    // a function, not a string, as the replacement: a label with "$" in it must not be read as a pattern
+    var js = JS.replace("(open?'收合':'展開')+(all?'全部原始備註':'原始備註')", function () {
+      return '(open?' + jsStr(L.js_collapse) + ':' + jsStr(L.js_expand) + ')+(all?' + jsStr(L.js_all_notes) + ':' + jsStr(L.js_notes) + ')';
+    });
+    return '<!doctype html>\n<html lang="' + attr(L.lang) + '">\n<head>\n<meta charset="utf-8">\n' +
       '<meta name="viewport" content="width=device-width,initial-scale=1">\n' +
       '<title>' + esc(title) + '</title>\n' +
       (m.description ? '<meta name="description" content="' + attr(m.description) + '">\n' : '') +
       '<meta name="generator" content="travel-planner render.js">\n' +
       '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
       '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
-      '<link rel="stylesheet" href="' + FONTS + '">\n' +
-      '<style>' + CSS + '</style>\n</head>\n<body>\n' +
-      '<a class="skip-link" href="#itinerary">跳到行程內容</a>\n' +
+      '<link rel="stylesheet" href="' + (L.fonts || LANGS['zh-Hant'].fonts) + '">\n' +
+      '<style>' + CSS + (L.font_css || '') + '</style>\n</head>\n<body>\n' +
+      '<a class="skip-link" href="#itinerary">' + esc(L.skip) + '</a>\n' +
       '<div class="shell">\n' +
-      '  <nav class="rail" aria-label="行程日期">\n' +
-      '    <div class="brand">微塵筆記<small>DUSTYNOTES</small></div>\n' +
+      '  <nav class="rail" aria-label="' + attr(L.rail_aria) + '">\n' +
+      '    <div class="brand">' + esc(L.brand) + '<small>' + esc(L.brand_small) + '</small></div>\n' +
       '    <ol>' + rail + '\n    </ol>\n  </nav>\n' +
       '  <main class="sheet" id="itinerary" tabindex="-1">\n' +
       '    <header class="masthead">\n' +
@@ -748,23 +931,21 @@
       (m.example_label ? '<p class="example-label">' + esc(m.example_label) + '</p>' : '') + '</div>\n' +
       '        <p class="trip-dates">' + tripDates + '</p>\n' +
       '      </div>' +
-      '\n      <nav class="reading-start" aria-label="開始閱讀"><a class="start-link" href="#' + firstId + '">開始看行程</a>' +
-      (todo.length ? '<a href="#checklist">出發前待處理 ' + todo.length + ' 項</a>' : '') + '</nav>' +
+      '\n      <nav class="reading-start" aria-label="' + attr(L.reading_aria) + '"><a class="start-link" href="#' + firstId + '">' + esc(L.start) + '</a>' +
+      (todo.length ? '<a href="#checklist">' + esc(fmt(L.todo_top, { n: todo.length })) + '</a>' : '') + '</nav>' +
       cover + journey + factsHtml(trip) + downloadsHtml +
-      (m.notice ? '\n      <p class="guide-note">' + noticeHtml(m.notice) + '</p>' : '') + prepHtml +
-      '\n      <p class="print-note">PDF 精簡版保留每日簡報與必要指示；已取消、沒去的項目及原始長篇備註請見 HTML 行程表。</p>' +
-      '\n      <div class="reading-tools"><div class="tools" hidden><button type="button" class="tg" data-scope="all">展開全部原始備註</button></div></div>' +
+      (m.notice ? '\n      <p class="guide-note">' + noticeHtml(m.notice, L) + '</p>' : '') + prepHtml +
+      '\n      <p class="print-note">' + esc(L.print_note) + '</p>' +
+      '\n      <div class="reading-tools"><div class="tools" hidden><button type="button" class="tg" data-scope="all">' + esc(L.expand_all) + '</button></div></div>' +
       '\n    </header>\n' +
       trip.sections.map(function (s) { return sectionHtml(trip, s, byN); }).join('') +
       appsSection +
       '\n    <footer class="colophon">' +
-      '\n      <div>用<a href="' + CHANNEL + '" target="_blank" rel="noopener"><b>微塵筆記 DustyNotes</b></a> 的 travel-planner 做的</div>' +
-      (credits.length ? '\n      <div class="credits">照片：' + credits.join('；') + '</div>' : '') +
+      '\n      <div>' + L.colophon.split('{link}').map(esc).join('<a href="' + CHANNEL + '" target="_blank" rel="noopener"><b>' + esc(L.channel_name) + '</b></a>') + '</div>' +
+      (credits.length ? '\n      <div class="credits">' + esc(L.photo_prefix) + credits.join(esc(L.semi)) + '</div>' : '') +
       '\n    </footer>\n  </main>\n</div>\n' +
-      '<script>' + JS + '</script>\n</body>\n</html>';
+      '<script>' + js + '</script>\n</body>\n</html>';
   }
-
-  var FONTS = 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&amp;family=Noto+Serif+TC:wght@700&amp;family=Sometype+Mono:wght@400;700&amp;display=swap';
 
   // CSS and the interaction script are copied from build_itinerary_html.py.
   // Changes from that copy: fonts come from Google Fonts (the <link> above)
@@ -1114,6 +1295,7 @@ p{margin:0}
     stopTitle: stopTitle,
     esc: esc,
     attr: attr,
+    LANGS: LANGS,
     PLAN: PLAN,
     BOOKING: BOOKING,
     TYPE: TYPE

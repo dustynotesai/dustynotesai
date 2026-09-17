@@ -49,6 +49,7 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
   "subtitle": "一份 agent 排的行程表",
   "example_label": "範例：旅客是設定的，查的東西是真的",
   "page_title": "<城市>五天 · 行程表",
+  "language": "zh-Hant",
   "description": "<YYYY> 年 <M> 月 <D> 日到 <D> 日，<城市>。",
   "origin": "<出發城市>",
   "start": "2027-03-10",
@@ -84,6 +85,8 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
 | `subtitle` | | 標題下面那一行 |
 | `example_label` | | 標題下面的小字，範例才寫 |
 | `page_title` | | 瀏覽器分頁上的名字，沒寫就用 `title` |
+| `language` | | 頁面（和 PDF）固定文字的語言。**沒寫＝繁體 `zh-Hant`**；寫簡體就 `zh-Hans`；他明說要英文才寫 `en`。**只有他明說要別的語言才換** |
+| `labels` | | 頁面固定文字，一個鍵一個字，例如 `{ "map": "Google 地圖" }`。內建語言（zh-Hant、zh-Hans、en）可以只改幾個；**其他語言**（例如 `"language": "ja"`）要全部補齊——鍵照 `scripts/render.js` 裡的 `LANGS['zh-Hant']`，build 會列出還缺哪些 |
 | `description` | | 分享連結時的摘要 |
 | `origin` | | 從哪裡出發（面談第 1 題）。頁面不直接顯示，路線裡要寫就寫在 `route` |
 | `start` / `end` | **必填** | `YYYY-MM-DD`。第一天的 `date` 要等於 `start`，最後一天等於 `end` |
@@ -227,7 +230,7 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
 | `time` | **必填** | `HH:MM`，當地時間。同一天不能有兩格同一個時間 |
 | `act` | **必填** | 活動名稱，一行 |
 | `short` | | 簡報裡用的短名字。沒寫就取 `act` 括號前面那一段 |
-| `type` | **必填** | 交通／景點／美食／拍照／住宿／購物 |
+| `type` | **必填** | 交通／景點／美食／拍照／住宿／購物。**不管頁面是什麼語言都寫這些中文代碼**，頁面自己翻（`plan`、`booking` 也一樣） |
 | `city` | | 城市 |
 | `plan` | **必填** | 行程狀態：規劃中／備選／已取消／沒去／已到訪。**只有真的走過才標已到訪** |
 | `booking` | **必填** | 訂位狀態：未訂／需預約／已訂／待確認。**有確認信才算已訂**；只有付款授權、只有預先入住登記 → 待確認 |
@@ -253,6 +256,14 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
 ### cost — 費用
 
 **先寫當地幣、每人。** 換算成 `home` 一律標「約」。每人、總額、付款狀態分開寫。
+
+費用的字跟著 `meta.language`，下面的表是繁體：
+
+| 語言 | 免費 | 依訂單 | 已含／含在 | 待確認 | 換算標 |
+|---|---|---|---|---|---|
+| 繁體（預設） | 免費 | 依訂單 | 已含／含在 | 待確認 | 約 |
+| `zh-Hans` | 免费 | 依订单 | 已含／含在 | 待确认 | 约 |
+| `en` | Free | Per booking | Included／Covered by | TBC | `~`、`≈`、approx、about、around |
 
 | 寫法 | 頁面上 |
 |---|---|
