@@ -11,8 +11,8 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 | [`travel/travel-planner/`](travel/travel-planner/) | Claude Code 的 skill：先問你、再去查、給你看過大綱，才排完整行程，最後做成行程頁和 PDF |
 | [`travel/travel-planner/prompt.md`](travel/travel-planner/prompt.md) | **複製這幾句就能用**：開始排、一次講完、改行程、旅行回來 |
 | [`travel/travel-template.md`](travel/travel-template.md) | 空白行程模板（Markdown），不用 Claude Code 也能自己填 |
-| [`travel/examples/europe-2026/`](travel/examples/europe-2026/) | **歐洲範例（真的走過的）**：十五天、四個國家的行程頁 `trip.html` 和 PDF。私人資訊已拿掉 |
-| [`travel/examples/tokyo-2026-11/`](travel/examples/tokyo-2026-11/) | **東京範例（用這個 skill 排的，還沒去）**：七天的行程頁 `trip.html` 和 PDF，就是影片裡錄下來的那一份。公開前逐項對過官網，抽查到的錯都改了——影片畫面上是改之前的版本 |
+| [`travel/examples/europe-2026/`](travel/examples/europe-2026/) | **歐洲範例（真的走過的）**：十五天、四個國家的行程頁 `trip.html` 和 PDF。私人資訊已拿掉。[**直接點開看**](https://dustynotesai.github.io/dustynotesai/travel/examples/europe-2026/trip.html) |
+| [`travel/examples/tokyo-2026-11/`](travel/examples/tokyo-2026-11/) | **東京範例（用這個 skill 排的，還沒去）**：七天的行程頁 `trip.html` 和 PDF，就是影片裡錄下來的那一份。公開前逐項對過官網，抽查到的錯都改了——影片畫面上是改之前的版本。[**直接點開看**](https://dustynotesai.github.io/dustynotesai/travel/examples/tokyo-2026-11/trip.html) |
 
 ---
 
