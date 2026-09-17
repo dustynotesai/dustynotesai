@@ -23,6 +23,8 @@ description: Use when someone wants to plan a trip — a day-by-day itinerary, "
 **行程頁（HTML）和 PDF 也照這條。** `trip.json` 的 `meta.language` 決定頁面上的按鈕、標籤、日期用哪個語言：
 繁體不用寫（預設）、簡體寫 `"zh-Hans"`、他指定英文寫 `"en"`；其他語言要在 `meta.labels` 把頁面文字補齊（見 `references/trip-schema.md`）。
 `type`／`plan`／`booking` 永遠寫中文代碼，頁面自己翻；**你寫的內容**（標題、必要指示、費用的字）用同一個語言。
+**建檔時會檢查，對不上就建不出來：** 中文頁面裡有整格英文、英文頁面裡大部分是中文、繁體頁面出現簡體字（或反過來）。
+日文地名（浅草、渋谷駅、東京都庁）不算簡體，照寫沒關係。
 ⚠️ 這條跟幣別那條不衝突：**幣別要單獨問**，不准從語言猜。
 
 ## 流程（✋ 是一定要停下來等他的地方）

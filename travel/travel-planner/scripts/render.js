@@ -327,6 +327,91 @@
     return items;
   }
 
+  // ---------- content language ----------
+  // The page's fixed words follow meta.language, so what the agent wrote has to as well.
+  // SKILL.md says so; this is what stops the build when the agent forgets.
+  var HAN = /[㐀-鿿豈-﫿]/g;
+  var LATIN_WORD = /[A-Za-z]{2,}/g;
+  // Characters only one Chinese script uses. Every form Japanese shares is left out on
+  // purpose: 浅草、渋谷駅、東京都庁、千客万来 are real names inside a Traditional itinerary.
+  var SIMPLIFIED_ONLY = '这们个时说对发过还进远边门问间车东马鸟书买卖实应开关头从业气电网页话语请让认识该变线经结给总爱长办乐亲场华单历县园图块坏处备复够奖妈岁岛带广庆张录忆惊战护报择换无显术权杂标样欢汉汤济测满热爷环现盘础确种积笔签简类纪红约级纯纸细织终组练罗职联脑艺节苏药营虽补观规视览觉计订讨训记讲许论设访证评诉译试详误读调谈谢负费购贵资赛赶转轻较辆达运连选适钟钱铁银错键闭闻阅队阳际陆险难题顾风飞馆验鱼鲜鸡齐龙两丽为义乡汇币晓执恶';
+  var TRADITIONAL_ONLY = '這們說對發邊從氣讓變經總樂醫單歷縣雙圖壞處夠獎媽歲帶廣錄戰擇顯權雜樣歡濟滿爺簽聯腦藝蘇藥營雖觀覽覺證譯讀趕轉輕錢鐵閱險驗雞齊兩鄉匯';
+
+  // The words the agent wrote, with where they sit. main: the fields a reader always sees
+  // and that are never just a name (titles, the notice, what to watch for, what to do).
+  function contentFields(trip) {
+    var out = [];
+    function add(path, v, main) { if (typeof v === 'string' && v.trim()) out.push({ path: path, text: v, main: !!main }); }
+    var m = isObj(trip.meta) ? trip.meta : {};
+    add('meta.title', m.title, true);
+    add('meta.subtitle', m.subtitle);
+    add('meta.notice', m.notice, true);
+    (Array.isArray(m.prep) ? m.prep : []).forEach(function (p, i) {
+      if (isObj(p)) { add('meta.prep[' + i + '].item', p.item); add('meta.prep[' + i + '].detail', p.detail); }
+    });
+    (Array.isArray(m.defaults) ? m.defaults : []).forEach(function (d, i) { add('meta.defaults[' + i + ']', d); });
+    (Array.isArray(trip.days) ? trip.days : []).forEach(function (day) {
+      if (!isObj(day)) return;
+      var label = 'Day ' + pad2(day.n);
+      add(label + '.title', day.title, true);
+      if (isObj(day.brief)) { add(label + '.brief.stay', day.brief.stay); add(label + '.brief.attention', day.brief.attention, true); }
+      (Array.isArray(day.rows) ? day.rows : []).forEach(function (row) {
+        if (!isObj(row)) return;
+        var rl = label + ' ' + row.time;
+        add(rl + '.act', row.act);
+        add(rl + '.essential', row.essential, true);
+        (Array.isArray(row.notes) ? row.notes : []).forEach(function (n, k) { add(rl + '.notes[' + k + ']', n); });
+      });
+    });
+    return out;
+  }
+
+  function listSome(items) {
+    return items.slice(0, 5).join('、') + (items.length > 5 ? ' 等 ' + items.length + ' 處' : '');
+  }
+
+  // → error strings. Only built-in languages are judged; another language brings its own labels
+  // and nothing here knows what it should look like.
+  function contentLanguageErrors(trip) {
+    var meta = isObj(trip.meta) ? trip.meta : {};
+    var language = typeof meta.language === 'string' ? meta.language : 'zh-Hant';
+    if (language !== 'zh-Hant' && language !== 'zh-Hans' && language !== 'en') return [];
+    var named = meta.language == null ? 'zh-Hant（meta.language 沒寫就是繁體）' : language;
+    var wrongScript = language === 'zh-Hant' ? SIMPLIFIED_ONLY : language === 'zh-Hans' ? TRADITIONAL_ONLY : '';
+    var english = [], chinese = [], script = [];
+    contentFields(trip).forEach(function (f) {
+      var han = (f.text.match(HAN) || []).length;
+      var words = (f.text.match(LATIN_WORD) || []).length;
+      if (f.main && language !== 'en' && han === 0 && words >= 4) english.push(f.path);
+      if (f.main && language === 'en' && han >= 4 && han > words * 2) chinese.push(f.path);
+      if (wrongScript) {
+        var bad = '';
+        for (var i = 0; i < f.text.length; i++) {
+          var ch = f.text.charAt(i);
+          if (wrongScript.indexOf(ch) >= 0 && bad.indexOf(ch) < 0) bad += ch;
+        }
+        if (bad) script.push(f.path + '「' + bad + '」');
+      }
+    });
+    var errors = [];
+    if (english.length) {
+      errors.push('頁面語言是 ' + named + '，但這幾格是英文：' + listSome(english) +
+        '。改成中文；只有他明說要英文，才把 meta.language 改成 "en"');
+    }
+    if (chinese.length) {
+      errors.push('meta.language 是 en，但這幾格大部分是中文：' + listSome(chinese) +
+        '。改成英文；他沒有明說要英文的話，拿掉 meta.language，整份用中文');
+    }
+    if (script.length && language === 'zh-Hant') {
+      errors.push('頁面是繁體（meta.language ' + (meta.language == null ? '沒寫，就是繁體' : language) + '），但出現簡體字：' + listSome(script) +
+        '。改成繁體；他寫的是簡體的話，整份用簡體並把 meta.language 設成 "zh-Hans"');
+    }
+    if (script.length && language === 'zh-Hans') {
+      errors.push('頁面是簡體（meta.language zh-Hans），但出現繁體字：' + listSome(script) + '。改成簡體');
+    }
+    return errors;
+  }
+
   // ---------- validation ----------
   function isObj(x) { return x && typeof x === 'object' && !Array.isArray(x); }
   function isStr(x) { return typeof x === 'string' && x.trim() !== ''; }
@@ -629,6 +714,7 @@
     Object.keys(photos).forEach(function (id) {
       if (!usedPhotos[id]) warnings.push('photos.' + id + '：沒有用在任何地方');
     });
+    contentLanguageErrors(trip).forEach(err);
     return { errors: errors, warnings: warnings, usedPhotos: Object.keys(usedPhotos) };
   }
 
