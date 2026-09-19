@@ -65,7 +65,7 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
     "rates": [{ "from": "JPY", "to": "USD", "rate": 0.0066, "date": "2026-11-01", "source": "https://…" }]
   },
   "budget": { "per_person_per_day": 150, "excludes": "機票、住宿" },
-  "researched_with": ["WebSearch", "WebFetch"],
+  "researched_with": ["網路搜尋", "讀網頁"],
   "checked_on": "2026-11-01",
   "cover": { "photo": "landmark", "caption": "<區域> · <景點>", "day": 2 },
   "route": [{ "name": "<城市>", "dates": "03.10–14", "day": 1 }],
@@ -100,7 +100,7 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
 | `currency.local` | **必填** | 當地幣，陣列。沒有就寫 `[]` |
 | `currency.rates` | | 每一個當地幣一筆，見下面 |
 | `budget` | | `per_person_per_day` 用 `home` 幣別，`excludes` 寫不含什麼 |
-| `researched_with` | | 這一版用了哪些工具查 |
+| `researched_with` | | 這一版怎麼查的，用頁面的語言寫給他看，例如「網路搜尋」「讀網頁」。**不寫工具名稱**（WebSearch、WebFetch） |
 | `checked_on` | | 最後核對日期 |
 | `cover` | | 封面：`photo` 是 photos 的 id；`caption` 用「 · 」分兩段；`day` 讓連結跳到那一天 |
 | `route` | | 封面下的路線：`name`、`dates`（照你想顯示的寫，例如 `"07.25–28"`）、`day` |
