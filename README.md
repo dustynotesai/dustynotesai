@@ -2,7 +2,17 @@
 
 YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 
-影片裡提到的 skill、模板和範例都放在這裡，一個主題一個資料夾。
+影片裡提到的 skill、模板和範例都放在這裡，一個主題一個資料夾；比較大的專案有自己的 repo。
+
+## 每一集有什麼
+
+| 影片 | 可以拿走的東西 |
+|---|---|
+| [有了 Claude Code，公司還付我薪水做什麼？](https://www.youtube.com/watch?v=r7LhVd36AgU) | — |
+| [用 AI 寫程式半年，產量變 3 倍——我的時間有變多嗎？](https://www.youtube.com/watch?v=3iRO66WKQyU) | — |
+| [Astra 23 分鐘做出一個開放世界，AI 接走了我幾層工作？](https://www.youtube.com/watch?v=x26EawhRXK8) | — |
+| 我照 ChatGPT 說的訂了機票，付完錢才發現問題…（即將上片） | [`travel/`](travel/)：旅行 skill、空白行程模板、東京和歐洲兩份範例（說明在下面） |
+| AI Agent 真的會自己買東西了？我用 Claude Code + MCP 實測未來購物（即將上片） | [yoga-agent-store](https://github.com/dustynotesai/yoga-agent-store)：影片裡的模擬購物網站，一般網站、AI 的介面、身分／授權／預算／付款四道檢查都在裡面，可以自己開起來叫 AI 買一次。也有[瀏覽器體驗版](https://dustynotesai.github.io/yoga-agent-store/)和[實驗結果](https://github.com/dustynotesai/yoga-agent-store/blob/main/experiments/RESULTS.md) |
 
 ## 用 agent 排旅行 · [`travel/`](travel/)
 
