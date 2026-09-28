@@ -237,28 +237,36 @@ export function findChrome(env = process.env, exists = fs.existsSync) {
   return candidates.find((c) => exists(c)) || null;
 }
 
-export function printPdf(chrome, htmlPath, pdfPath) {
+export function printPdf(chrome, htmlPath, pdfPath, run = spawnSync) {
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'travel-planner-chrome-'));
-  const started = Date.now();
+  const freshPdf = path.join(profile, 'trip.pdf');
   try {
-    const r = spawnSync(chrome, [
+    const r = run(chrome, [
       '--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--disable-extensions',
       `--user-data-dir=${profile}`, '--no-pdf-header-footer', '--run-all-compositor-stages-before-draw',
-      '--virtual-time-budget=15000', `--print-to-pdf=${pdfPath}`, pathToFileURL(htmlPath).href
-    ], { timeout: 180000, encoding: 'utf8' });
-    const ok = fs.existsSync(pdfPath) && fs.statSync(pdfPath).mtimeMs >= started - 2000;
+      '--virtual-time-budget=15000', `--print-to-pdf=${freshPdf}`, pathToFileURL(htmlPath).href
+    ], { timeout: 180000, encoding: 'utf8', windowsHide: true });
+    const ok = !r.error && r.status === 0 && fs.existsSync(freshPdf)
+      && fs.readFileSync(freshPdf).subarray(0, 5).toString('ascii') === '%PDF-';
     if (!ok) {
       const detail = (r.error && r.error.message) || String(r.stderr || '').trim().split('\n').slice(-3).join(' / ');
       return { ok: false, detail: detail || `Chrome 結束碼 ${r.status}` };
     }
+    // The old PDF is untouched unless Chrome produced a new PDF successfully.
+    fs.copyFileSync(freshPdf, pdfPath);
     return { ok: true };
+  } catch (e) {
+    return { ok: false, detail: e.message };
   } finally {
     try { fs.rmSync(profile, { recursive: true, force: true }); } catch { /* Chrome may still hold a lock */ }
   }
 }
 
 // ---------- build ----------
-export async function buildTrip(opts, { fetch: fetchImpl = globalThis.fetch, log = () => {} } = {}) {
+export async function buildTrip(opts, {
+  fetch: fetchImpl = globalThis.fetch, log = () => {},
+  findChrome: locateChrome = findChrome, printPdf: renderPdf = printPdf
+} = {}) {
   const tripPath = path.resolve(opts.trip);
   const baseDir = path.dirname(tripPath);
   const trip = readJson(tripPath, 'trip.json');
@@ -295,28 +303,30 @@ export async function buildTrip(opts, { fetch: fetchImpl = globalThis.fetch, log
     return html;
   };
 
-  const linkPdf = opts.pdf || fs.existsSync(pdfPath);
-  let html = render(linkPdf);
+  // An existing PDF may describe an older itinerary or contain unredacted text.
+  // Only offer it after this build has refreshed it successfully.
+  let html = render(false);
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, html);
-  const bytes = Buffer.byteLength(html);
-  if (bytes > SIZE_WARN) warnings.push(`頁面 ${(bytes / 1048576).toFixed(1)} MB，超過 15 MB：照片太多或太大`);
-
   let pdf = null;
   if (opts.pdf) {
-    const chrome = findChrome();
+    const chrome = locateChrome();
     if (!chrome) {
       pdf = { ok: false, detail: '找不到 Chrome（可以用 CHROME_PATH 或 HYPERFRAMES_BROWSER_PATH 指定路徑）' };
     } else {
       log(`用 ${chrome} 印 PDF…`);
-      pdf = printPdf(chrome, outPath, pdfPath);
+      pdf = renderPdf(chrome, outPath, pdfPath);
     }
-    if (!pdf.ok && !fs.existsSync(pdfPath)) {
-      // no PDF to download: drop the link rather than ship a dead one
-      html = render(false);
+    if (pdf.ok) {
+      html = render(true);
       fs.writeFileSync(outPath, html);
     }
   }
+  if (!(pdf && pdf.ok) && fs.existsSync(pdfPath)) {
+    warnings.push(`舊 PDF 沒有更新，已移除下載連結：${pdfPath}。請用 --pdf 重建或從最新 HTML 列印；分享時不要附上舊 PDF。`);
+  }
+  const bytes = Buffer.byteLength(html);
+  if (bytes > SIZE_WARN) warnings.push(`頁面 ${(bytes / 1048576).toFixed(1)} MB，超過 15 MB：照片太多或太大`);
 
   const rows = trip.days.reduce((s, d) => s + d.rows.length, 0);
   const booked = trip.days.reduce((s, d) => s + d.rows.filter((r) => r.booking === '已訂').length, 0);

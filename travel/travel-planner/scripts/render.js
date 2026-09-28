@@ -644,6 +644,12 @@
       links.push('<a href="' + attr(row.ticket) + '" target="_blank" rel="noopener" title="' + attr(row.ticket) + '">' +
         esc(ticketDomain(row.ticket)) + newTab + '</a>');
     }
+    (row.sources || []).filter(function (url, i, all) {
+      return url !== row.map && url !== row.ticket && all.indexOf(url) === i;
+    }).forEach(function (url, i) {
+      links.push('<a href="' + attr(url) + '" target="_blank" rel="noopener" title="' + attr(url) + '">' +
+        esc(L.source) + ' ' + (i + 1) + newTab + '</a>');
+    });
     var cost = costView(row.cost, trip);
     var costline = cost && cost.text
       ? '<span class="cost">' + esc(cost.text) + '</span>' + (cost.note ? '<small class="cost-note">' + esc(cost.note) + '</small>' : '')

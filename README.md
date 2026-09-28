@@ -18,7 +18,8 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 
 | 檔案 | 是什麼 |
 |---|---|
-| [`travel/travel-planner/`](travel/travel-planner/) | Claude Code 的 skill：先問你、再去查、給你看過大綱，才排完整行程，最後做成行程頁和 PDF |
+| [`travel/travel-planner/`](travel/travel-planner/) | Codex、Claude Code 共用的 skill：先問你、再去查、給你看過大綱，才排完整行程，最後做成行程頁和 PDF |
+| [`travel/chatgpt-prompt.md`](travel/chatgpt-prompt.md) | **一般 ChatGPT 對話直接貼上就能用**：同樣先問、再查、看大綱，預設交 Markdown 行程表 |
 | [`travel/travel-planner/prompt.md`](travel/travel-planner/prompt.md) | **複製這幾句就能用**：開始排、一次講完、改行程、旅行回來 |
 | [`travel/travel-template.md`](travel/travel-template.md) | 空白行程模板（Markdown），不用 Claude Code 也能自己填 |
 | [`travel/examples/europe-2026/`](travel/examples/europe-2026/) | **歐洲範例（真的走過的）**：十五天、四個國家的行程頁 `trip.html` 和 PDF。私人資訊已拿掉。[**直接點開看**](https://dustynotesai.github.io/dustynotesai/travel/examples/europe-2026/trip.html) |
@@ -26,7 +27,61 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 
 ---
 
-### 第一次用？照這幾步
+### 第一次用？先選你用的工具
+
+| 你想怎麼用 | 從這裡開始 |
+|---|---|
+| 在一般 ChatGPT 對話裡排旅行 | [ChatGPT 複製貼上版](#chatgpt-chat) |
+| 用 ChatGPT 帳號登入 Codex，在電腦產生行程頁和 PDF | [Codex 安裝方式](#codex-setup) |
+| 已經在用 Claude Code | [Claude Code 安裝方式](#claude-setup) |
+
+<a id="chatgpt-chat"></a>
+
+### ChatGPT：複製貼上就能開始
+
+打開 [`travel/chatgpt-prompt.md`](travel/chatgpt-prompt.md)，複製「貼到 ChatGPT 的完整提示詞」整個區塊，
+貼進新對話，再填目的地和已知的旅行資料。不用安裝 skill，也不用設定 API key。
+
+這一版預設在對話裡給你 **Markdown 行程表**。需要查價、班次、入境規定時，請使用有網路搜尋的對話；
+沒有搜尋能力或網站看不到的資料，會標「未驗證」。HTML／PDF 只有在對話環境實際能產生檔案時才提供，
+不保證與下面 Codex 的行程頁版型相同。想使用本 repo 的固定版型，就走 Codex 的方式。
+
+<a id="codex-setup"></a>
+
+### Codex：用 ChatGPT 帳號，把行程存成檔案
+
+**你需要：** 能使用 Codex 的 ChatGPT 帳號、一台電腦、Node.js 18 以上（執行行程頁 builder；安裝時選仍受支援的版本）、
+Chrome（自動印 PDF 用）。用 ChatGPT 登入即可；本 skill 不需要另填 OpenAI API key。
+帳號可用功能與額度以自己的方案為準。參考 [OpenAI 登入說明](https://learn.chatgpt.com/docs/auth)。
+
+1. 按照 [OpenAI 快速入門](https://learn.chatgpt.com/docs/quickstart) 安裝桌面 app 並登入 ChatGPT 帳號，選擇 Codex。
+   已經使用 Codex CLI 或 IDE 擴充套件也可以。
+2. 建立「我的旅行」資料夾，在 Codex 開啟它；之後每次排行程都用這個資料夾。
+3. 把下面這段貼給 Codex：
+
+   ```text
+   幫我安裝這個旅行 skill：
+   https://github.com/dustynotesai/dustynotesai/tree/main/travel/travel-planner
+   請把整個 travel-planner 資料夾（包含 agents、references、scripts）
+   放到目前工作資料夾的 .agents/skills/travel-planner。
+   如果已經有同名 skill，先告訴我，再決定要不要更新。
+   ```
+
+   **手動安裝也可以：** 這個 repo 的「Code」→「Download ZIP」，解壓縮，把 `travel/travel-planner` 整個資料夾
+   複製到「我的旅行/.agents/skills/travel-planner」。不要只複製 `SKILL.md`。
+4. 裝好後貼上：`請使用 travel-planner skill，幫我排一趟去 ＿＿ 的旅行`。
+   CLI／IDE 也可以用 `$travel-planner 幫我排一趟去 ＿＿ 的旅行`。
+   沒出現 skill 就重開 Codex；確認它開的是「我的旅行」資料夾。
+5. 回答缺少的資料、確認大綱；做好後打開 `trips/<城市>-<年-月>/trip.html`。
+   PDF 產生成功才會有下載連結；沒裝 Chrome 可在瀏覽器開啟 HTML，列印 → 另存成 PDF。
+
+Codex 與 Claude Code 使用同一份 `travel-planner`，更新時替換整個 skill 資料夾即可。
+這裡採用 Codex 的專案技能目錄 `.agents/skills/`，安裝位置與呼叫方式見 [OpenAI Skills 說明](https://learn.chatgpt.com/docs/build-skills)。
+下面的 Opus／Sonnet 比較是 Claude Code 的實測，不是 Codex 的模型設定。
+
+<a id="claude-setup"></a>
+
+### Claude Code：安裝方式
 
 **你需要：** Claude 付費方案（Pro 以上）、一台 Mac 或 Windows 電腦、[Node.js](https://nodejs.org/) 18 以上（做行程頁用）、Chrome（印 PDF 用）。
 
@@ -42,7 +97,7 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 5. **跟它說**：「幫我排一趟去 ＿＿ 的旅行」。
    它會先問你幾題、讀回去確認，再去查——**那些停頓是故意的，答完它才會繼續**。
    不想被一題一題問，[`travel/travel-planner/prompt.md`](travel/travel-planner/prompt.md) 有可以整段複製的版本。
-   **查資料那一段會安靜跑好幾分鐘**，畫面上一直有工具在動、沒有人講話——**那是正常的，不是當掉**。
+   查資料可能要幾分鐘，它應該先說要查什麼，較久時再報進度。
    一趟行程從頭到尾大概要等十幾到幾十分鐘，中間它會停下來問你幾次。
 6. **做好之後**，打開 `trips/<城市>-<年-月>/trip.html` 看；要印出來帶著走，用同一個資料夾裡的 `trip.pdf`。
 
@@ -69,11 +124,12 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 
 **全程用中文，做出來的行程頁和 PDF 也是。** 你寫繁體它就回繁體，寫簡體就回簡體；想用英文或其他語言，直接跟它說「用英文回」就好，頁面上的按鈕和標籤也會跟著換。
 
-1. **先問你六個問題**（日期、人數、幣別、預算、步調、已經訂好的東西），讀回去給你確認。
+1. **先補齊六項資料**（日期、人數、幣別、預算、步調、已經訂好的東西），已提供的不用重答，再讀回去給你確認。
 2. **機票、住宿、城市之間的交通還沒訂**：它先幫你比。每一段火車／飛機／巴士都算**門到門**的時間和總花費，
    每個城市推薦一家住宿，價格都寫查詢時間——**它只查、只比、只推薦，不替你訂**。
 3. **骨架定了**，先給你看每天的大綱，你說好了才寫完整版。
-4. **做出 `trip.html`（完整行程頁，離線也能看）和 `trip.pdf`（A4 精簡版）**。
+4. **Codex／Claude Code 做出 `trip.html`（完整行程頁）和 `trip.pdf`（A4 精簡版，Chrome 成功列印才有）**；
+   一般 ChatGPT 提示詞版預設給 Markdown 表格。HTML 的行程文字可離線看；照片若下載失敗仍需要連網。
 
 **這是第一版，不是定案。** 讀一遍，想改什麼直接跟它說——「我自己找到飯店了，改住 ＿＿」「第三天太趕，刪掉一個點」
 「兩天對調」都可以，它會只改受影響的地方、重建頁面，告訴你改了什麼。

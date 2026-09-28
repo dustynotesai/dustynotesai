@@ -34,7 +34,7 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
 |---|---|---|
 | `schema` | **必填** | 固定寫 `1` |
 | `meta` | **必填** | 表頭，見下面 |
-| `photos` | | 照片，`id → 照片`。沒有照片可以不寫 |
+| `photos` | **必填** | 照片，`id → 照片`。至少提供各城市分段引用的圖片 |
 | `sections` | **必填** | 城市分段，每一天都要在剛好一段裡 |
 | `days` | **必填** | 每一天，照 `n` 由小到大 |
 | `links` | | 交通與售票連結、app |
@@ -138,8 +138,8 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
 | `alt` | | 描述圖片內容。城市分段的大圖是裝飾，alt 會留空 |
 | `author` / `license` / `source` | | `commons` 會自動填。`file` 要自己寫，沒寫 build 會提醒——**公開之前要補** |
 
-照片會變成 data URI 塞進 trip.html，離線也看得到。一張抓不到只是警告，頁面改用 Commons 的網址。
-**只用 Commons 的照片**，不要從網路上隨便抓。
+成功下載的照片會變成 data URI 塞進 trip.html，離線也看得到。網路失敗時會警告並保留 Commons 網址，該照片離線看不到；
+城市分段引用的 Commons 檔案若確定不存在，build 會失敗。使用 Commons 照片或有權使用的本機照片，不要從網路上隨便抓。
 
 ---
 
@@ -240,7 +240,7 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
 | `map` | 有地點的**必填** | 地圖連結。景點／美食／拍照／住宿／購物一定要有；交通、以及 `city` 是 `Transit` 的格子不用。<br>座標最好：`?api=1&query=<緯度>,<經度>`；沒有就寫 `?api=1&query=<地點名> <城市>`。<br>**只收 `google.com/maps/search/`**——`/maps/place/` 帶 CID 的和短網址沒查過就是編的 |
 | `ticket` | 訂得到的**必填** | **官方**售票或訂房網址，不是搜尋結果。<br>住宿沒訂、以及訂位狀態「需預約」的景點／拍照一定要有；<br>餐廳還沒選定可以沒有，但必要指示要寫怎麼訂 |
 | `verified` | **必填** | 這一格的數字和連結這次有沒有用工具查過：`true`／`false` |
-| `sources` | | 查證用的網址 |
+| `sources` | | 查證用的網址，顯示為該格的「來源」連結；與地圖、售票網址相同的來源不重複顯示 |
 | `photo` | | photos 的 id，小圖放在必要指示下面 |
 
 `essential` 和 `notes` 至少要有一個。只有 `notes` 的格子，備註直接顯示不收合。
@@ -337,5 +337,10 @@ node scripts/build.mjs trip.json --redact redactions.json
 
 **PDF 是精簡版：** 封面、每天的簡報和必要指示、最後的連結。已取消、沒去的格子和原始備註不印，
 封面會寫。找不到 Chrome 就只寫 HTML，用 `CHROME_PATH` 指定 Chrome 的位置。
+
+PDF 只有本次 `--pdf` 成功重建後才出現在 HTML 的下載連結。未要求 PDF 或列印失敗時，舊 PDF 保留在原處，
+但不再從新 HTML 連過去；分享時不要附上未更新的舊 PDF，特別是這次用了 `--redact` 的情況。
+
+維護 builder 時，可用 `node --test scripts/build.test.mjs` 跑回歸測試（在 skill 資料夾執行）。
 
 **頁面超過 15 MB** build 會提醒：照片太多或太大。

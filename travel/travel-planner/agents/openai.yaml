@@ -1,0 +1,4 @@
+interface:
+  display_name: "旅行規劃 Travel Planner"
+  short_description: "先問需求、查證交通住宿，再建立可修改的每日行程、網頁與 PDF"
+  default_prompt: "請使用 $travel-planner 幫我規劃旅行：先補問缺少資料，查證交通住宿，給我看每日大綱，再建立行程頁與 PDF。"
