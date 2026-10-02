@@ -1,8 +1,8 @@
 # 複製這幾句就能用
 
 在 Codex 或 Claude Code 裝好 skill 之後，貼哪一句都可以。**不知道要貼什麼就貼第一句**，它會自己問你。
-Codex CLI／IDE 可在句子前加 `$travel-planner`。安裝步驟見 [README](../../README.md#codex-setup)。
-只用一般 ChatGPT 對話，請改貼 [ChatGPT 完整提示詞](../chatgpt-prompt.md)，那一份不用安裝。
+還沒裝的話，先看 [Codex 使用說明](codex.md) 或 [Claude Code 使用說明](claude-code.md)。
+只用一般 ChatGPT 對話，請改貼 [ChatGPT 完整提示詞](chatgpt-prompt.md)，那一份不用安裝。
 
 ---
 
@@ -88,5 +88,5 @@ Codex CLI／IDE 可在句子前加 `$travel-planner`。安裝步驟見 [README](
 
 ## 不用 Codex 或 Claude Code 的話
 
-[ChatGPT 完整提示詞](../chatgpt-prompt.md) 可以直接貼進一般對話。
-[`../travel-template.md`](../travel-template.md) 是空白的 Markdown 行程模板，自己填也行。
+[ChatGPT 完整提示詞](chatgpt-prompt.md) 可以直接貼進一般對話。
+[`travel-template.md`](travel-template.md) 是空白的 Markdown 行程模板，自己填也行。

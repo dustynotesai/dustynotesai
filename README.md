@@ -11,140 +11,20 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 | [有了 Claude Code，公司還付我薪水做什麼？](https://www.youtube.com/watch?v=r7LhVd36AgU) | — |
 | [用 AI 寫程式半年，產量變 3 倍——我的時間有變多嗎？](https://www.youtube.com/watch?v=3iRO66WKQyU) | — |
 | [Astra 23 分鐘做出一個開放世界，AI 接走了我幾層工作？](https://www.youtube.com/watch?v=x26EawhRXK8) | — |
-| 我照 ChatGPT 說的訂了機票，付完錢才發現問題…（即將上片） | [`travel/`](travel/)：旅行 skill、空白行程模板、東京和歐洲兩份範例（說明在下面） |
-| AI Agent 真的會自己買東西了？我用 Claude Code + MCP 實測未來購物（即將上片） | [yoga-agent-store](https://github.com/dustynotesai/yoga-agent-store)：影片裡的模擬購物網站，一般網站、AI 的介面、身分／授權／預算／付款四道檢查都在裡面，可以自己開起來叫 AI 買一次。也有[瀏覽器體驗版](https://dustynotesai.github.io/yoga-agent-store/)和[實驗結果](https://github.com/dustynotesai/yoga-agent-store/blob/main/experiments/RESULTS.md) |
+| ChatGPT 排的火車，那天根本不會來…而且它寫得超肯定 | 影片置頂留言的指令，複製到 ChatGPT 就能用 |
+| 用 AI Agent 排旅行（即將上片） | [`travel/`](travel/)：旅行 skill（Codex、Claude Code 都能用）、ChatGPT 指令、空白模板、兩份範例 |
 
-## 用 agent 排旅行 · [`travel/`](travel/)
+## 用 AI 排旅行 · [`travel/`](travel/)
 
-| 檔案 | 是什麼 |
+它會先問你、再去查、給你看過大綱，才排完整行程，最後做成行程頁和 PDF，再給你一張出發前自己對的清單。
+
+| 你現在用的是 | 從這裡開始 |
 |---|---|
-| [`travel/travel-planner/`](travel/travel-planner/) | Codex、Claude Code 共用的 skill：先問你、再去查、給你看過大綱，才排完整行程，最後做成行程頁和 PDF |
-| [`travel/chatgpt-prompt.md`](travel/chatgpt-prompt.md) | **一般 ChatGPT 對話直接貼上就能用**：同樣先問、再查、看大綱，預設交 Markdown 行程表 |
-| [`travel/travel-planner/prompt.md`](travel/travel-planner/prompt.md) | **複製這幾句就能用**：開始排、一次講完、改行程、旅行回來 |
-| [`travel/travel-template.md`](travel/travel-template.md) | 空白行程模板（Markdown），不用 Claude Code 也能自己填 |
-| [`travel/examples/europe-2026/`](travel/examples/europe-2026/) | **歐洲範例（真的走過的）**：十五天、四個國家的行程頁 `trip.html` 和 PDF。私人資訊已拿掉。[**直接點開看**](https://dustynotesai.github.io/dustynotesai/travel/examples/europe-2026/trip.html) |
-| [`travel/examples/tokyo-2026-11/`](travel/examples/tokyo-2026-11/) | **東京範例（用這個 skill 排的，還沒去）**：七天的行程頁 `trip.html` 和 PDF，就是影片裡錄下來的那一份。公開前逐項對過官網，抽查到的錯都改了——影片畫面上是改之前的版本。[**直接點開看**](https://dustynotesai.github.io/dustynotesai/travel/examples/tokyo-2026-11/trip.html) |
+| 只有一般 ChatGPT 對話 | [ChatGPT 複製貼上版](travel/chatgpt-prompt.md)：不用安裝 |
+| Codex（ChatGPT 付費帳號） | [Codex 使用說明](travel/codex.md) |
+| Claude Code（Claude 付費帳號） | [Claude Code 使用說明](travel/claude-code.md) |
 
----
-
-### 第一次用？先選你用的工具
-
-| 你想怎麼用 | 從這裡開始 |
-|---|---|
-| 在一般 ChatGPT 對話裡排旅行 | [ChatGPT 複製貼上版](#chatgpt-chat) |
-| 用 ChatGPT 帳號登入 Codex，在電腦產生行程頁和 PDF | [Codex 安裝方式](#codex-setup) |
-| 已經在用 Claude Code | [Claude Code 安裝方式](#claude-setup) |
-
-<a id="chatgpt-chat"></a>
-
-### ChatGPT：複製貼上就能開始
-
-打開 [`travel/chatgpt-prompt.md`](travel/chatgpt-prompt.md)，複製「貼到 ChatGPT 的完整提示詞」整個區塊，
-貼進新對話，再填目的地和已知的旅行資料。不用安裝 skill，也不用設定 API key。
-
-這一版預設在對話裡給你 **Markdown 行程表**。需要查價、班次、入境規定時，請使用有網路搜尋的對話；
-沒有搜尋能力或網站看不到的資料，會標「未驗證」。HTML／PDF 只有在對話環境實際能產生檔案時才提供，
-不保證與下面 Codex 的行程頁版型相同。想使用本 repo 的固定版型，就走 Codex 的方式。
-
-<a id="codex-setup"></a>
-
-### Codex：用 ChatGPT 帳號，把行程存成檔案
-
-**你需要：** 能使用 Codex 的 ChatGPT 帳號、一台電腦、Node.js 18 以上（執行行程頁 builder；安裝時選仍受支援的版本）、
-Chrome（自動印 PDF 用）。用 ChatGPT 登入即可；本 skill 不需要另填 OpenAI API key。
-帳號可用功能與額度以自己的方案為準。參考 [OpenAI 登入說明](https://learn.chatgpt.com/docs/auth)。
-
-1. 按照 [OpenAI 快速入門](https://learn.chatgpt.com/docs/quickstart) 安裝桌面 app 並登入 ChatGPT 帳號，選擇 Codex。
-   已經使用 Codex CLI 或 IDE 擴充套件也可以。
-2. 建立「我的旅行」資料夾，在 Codex 開啟它；之後每次排行程都用這個資料夾。
-3. 把下面這段貼給 Codex：
-
-   ```text
-   幫我安裝這個旅行 skill：
-   https://github.com/dustynotesai/dustynotesai/tree/main/travel/travel-planner
-   請把整個 travel-planner 資料夾（包含 agents、references、scripts）
-   放到目前工作資料夾的 .agents/skills/travel-planner。
-   如果已經有同名 skill，先告訴我，再決定要不要更新。
-   ```
-
-   **手動安裝也可以：** 這個 repo 的「Code」→「Download ZIP」，解壓縮，把 `travel/travel-planner` 整個資料夾
-   複製到「我的旅行/.agents/skills/travel-planner」。不要只複製 `SKILL.md`。
-4. 裝好後貼上：`請使用 travel-planner skill，幫我排一趟去 ＿＿ 的旅行`。
-   CLI／IDE 也可以用 `$travel-planner 幫我排一趟去 ＿＿ 的旅行`。
-   沒出現 skill 就重開 Codex；確認它開的是「我的旅行」資料夾。
-5. 回答缺少的資料、確認大綱；做好後打開 `trips/<城市>-<年-月>/trip.html`。
-   PDF 產生成功才會有下載連結；沒裝 Chrome 可在瀏覽器開啟 HTML，列印 → 另存成 PDF。
-
-Codex 與 Claude Code 使用同一份 `travel-planner`，更新時替換整個 skill 資料夾即可。
-這裡採用 Codex 的專案技能目錄 `.agents/skills/`，安裝位置與呼叫方式見 [OpenAI Skills 說明](https://learn.chatgpt.com/docs/build-skills)。
-下面的 Opus／Sonnet 比較是 Claude Code 的實測，不是 Codex 的模型設定。
-
-<a id="claude-setup"></a>
-
-### Claude Code：安裝方式
-
-**你需要：** Claude 付費方案（Pro 以上）、一台 Mac 或 Windows 電腦、[Node.js](https://nodejs.org/) 18 以上（做行程頁用）、Chrome（印 PDF 用）。
-
-1. **裝 Claude Code**（官方說明：[Quickstart](https://code.claude.com/docs/en/quickstart)）
-   - Mac：打開「終端機」，貼上 `curl -fsSL https://claude.ai/install.sh | bash`
-   - Windows：打開「PowerShell」，貼上 `irm https://claude.ai/install.ps1 | iex`
-2. **開一個放行程的資料夾**，例如桌面上的「我的旅行」，在這個資料夾打開終端機（或 PowerShell）。
-3. **啟動 Claude Code**，貼上：`claude --model opus --effort high`（第一次會請你登入）。
-4. **叫它把 skill 裝好**，貼上：
-   「幫我安裝這個 skill：https://github.com/dustynotesai/dustynotesai 裡面的 travel/travel-planner，裝到這個專案的 .claude/skills 資料夾」
-   它要寫進 `.claude` 資料夾的時候會先問你，按允許就好。裝好就能用，不用重開。
-   skill 只裝在這個資料夾裡——**以後要排行程，都在這個資料夾打開 Claude Code**。
-5. **跟它說**：「幫我排一趟去 ＿＿ 的旅行」。
-   它會先問你幾題、讀回去確認，再去查——**那些停頓是故意的，答完它才會繼續**。
-   不想被一題一題問，[`travel/travel-planner/prompt.md`](travel/travel-planner/prompt.md) 有可以整段複製的版本。
-   查資料可能要幾分鐘，它應該先說要查什麼，較久時再報進度。
-   一趟行程從頭到尾大概要等十幾到幾十分鐘，中間它會停下來問你幾次。
-6. **做好之後**，打開 `trips/<城市>-<年-月>/trip.html` 看；要印出來帶著走，用同一個資料夾裡的 `trip.pdf`。
-
-**想自己裝也可以**：這一頁右上角綠色的「Code」→「Download ZIP」，解壓縮，把 `travel/travel-planner` 整個資料夾複製到
-你放行程的資料夾裡的 `.claude/skills/`，例如「我的旅行/.claude/skills/travel-planner」（沒有 `.claude` 或 `skills` 資料夾就自己建），再在那個資料夾啟動 Claude Code。
-
-### 用哪個模型？建議 Opus
-
-| | **Opus（建議）** | Sonnet |
-|---|---|---|
-| 查資料 | 查得比較多：我們排練四天的東京行程，Opus 搜尋、讀網頁約 77 次 | 查得比較少、比較快：同樣四天（行程內容不同）約 40 次 |
-| 會不會寫錯 | **會。** 我們拿它排的一份行程抽查 31 項：22 項完全正確，價格沒有寫錯，但有幾處小地方不準——一家餐廳其實不能訂位、開放時間的月份區間寫錯、一句轉乘備註寫得會讓人誤會。影片裡錄的那份東京行程抽查 43 項，**有 7 項錯**：SHIBUYA SKY 票價寫成舊價、機場到飯店的車資少算一段、一個山手線的方向寫反，有幾格還標了「已查證」 | **會。** 我們測的時候，它把一段地鐵轉乘憑記憶寫錯了，後來只改好其中一天 |
-| 用量 | 比較吃方案額度 | 比較省，Pro 方案比較不容易用完 |
-
-**為什麼建議 Opus**：這個 skill 的重點就是「查過才寫，查不到就老實標未驗證」。Opus 查得比較多，所以建議用它。**但不管用哪個模型，行程都可能有錯**——下面「出發前一定要自己確認」那段請一定要看。
-
-**用 Sonnet 也可以**：用 `claude --model sonnet --effort high` 啟動。拿到行程後自己多讀一遍，看到怪怪的（例如轉乘、票價）直接叫它再查一次。
-
-**`--effort high` 是什麼**：讓它想得比較完整、查得比較多。建議不要調低。不確定現在用的是哪個模型，在 Claude Code 裡輸入 `/model` 就看得到。
-
----
-
-### 它會怎麼跟你互動
-
-**全程用中文，做出來的行程頁和 PDF 也是。** 你寫繁體它就回繁體，寫簡體就回簡體；想用英文或其他語言，直接跟它說「用英文回」就好，頁面上的按鈕和標籤也會跟著換。
-
-1. **先補齊六項資料**（日期、人數、幣別、預算、步調、已經訂好的東西），已提供的不用重答，再讀回去給你確認。
-2. **機票、住宿、城市之間的交通還沒訂**：它先幫你比。每一段火車／飛機／巴士都算**門到門**的時間和總花費，
-   每個城市推薦一家住宿，價格都寫查詢時間——**它只查、只比、只推薦，不替你訂**。
-3. **骨架定了**，先給你看每天的大綱，你說好了才寫完整版。
-4. **Codex／Claude Code 做出 `trip.html`（完整行程頁）和 `trip.pdf`（A4 精簡版，Chrome 成功列印才有）**；
-   一般 ChatGPT 提示詞版預設給 Markdown 表格。HTML 的行程文字可離線看；照片若下載失敗仍需要連網。
-
-**這是第一版，不是定案。** 讀一遍，想改什麼直接跟它說——「我自己找到飯店了，改住 ＿＿」「第三天太趕，刪掉一個點」
-「兩天對調」都可以，它會只改受影響的地方、重建頁面，告訴你改了什麼。
-
-**這也是一份大綱，不是每個點都要去。** 它給你一個全貌：用什麼 app、哪些地方值得去。去不去、餐廳吃哪家，照當下的感覺決定。
-
-**一趟一個資料夾**：每一趟存在 `trips/<城市>-<年-月>/`。下次再排同一個地方，它會先讀舊的行程——
-旅行回來跟它說哪些去了，下次就不會再推一樣的景點，上次的幣別、預算這些也不用重答。
-
-### ⚠️ 出發前一定要自己確認
-
-- **AI 會查錯，資料也會過時。** 我們抽查過它排的兩份行程，大部分是對的，但也有票價寫錯、轉乘方向寫反的，**有幾格還標了「已查證」**。它交給你之前會自己再驗一遍，但驗過不等於一定對。
-- **班次、票價、營業時間、門票開賣時間**：出發前到官方網站再看一次。每一格都附了它查的連結；標「未驗證」「待確認」的，一定要自己查。
-- **簽證、入境規定、護照效期**：以要去的國家的官方網站、或你自己國家的外交部為準。
-- **它只查、只比、只推薦**，不會替你訂任何東西，也不會付款。訂之前自己看清楚價格和取消規定。
+整包說明、範例行程頁、出發前要注意的事，在 [`travel/README.md`](travel/README.md)。
 
 ## 授權
 
