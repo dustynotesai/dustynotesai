@@ -61,6 +61,20 @@ https://github.com/dustynotesai/dustynotesai/tree/main/travel/travel-planner
 
 回答「有」就裝好了。回答沒有的話，看下面的「常見問題」。
 
+## 先開好權限（很重要）
+
+這個 skill 要讓 Codex **讀 skill 的檔案、跑小程式抓時刻表、把行程頁和 PDF 存進資料夾**。權限沒開，它會說「權限擋住」，然後改給你一個網頁連結，**沒有 HTML 和 PDF**。
+
+- **用 Codex CLI（終端機）**：在「我的旅行」資料夾，用這一行啟動：
+
+  ```
+  codex --approve-for-me
+  ```
+
+  它要執行指令的時候，會由 Codex 的自動審核替你判斷、放行一般的讀檔和寫檔。我們就是這樣測的（Windows），行程頁和 PDF 都做得出來。
+- **用 Codex 桌面 app 或 VS Code**：在對話框附近的權限設定，選「可以在這個資料夾執行指令」或「自動審核」那一類的選項，不要選唯讀；
+  跳出「要不要允許」時，查資料、存檔案的按允許。
+
 ## 開始排
 
 ```text
@@ -90,6 +104,9 @@ https://github.com/dustynotesai/dustynotesai/tree/main/travel/travel-planner
 **不管用哪個模型，行程都可能有錯。** 出發前一定要照清單自己再對一次（見[旅行說明](README.md)最後一段「出發前一定要自己確認」）。
 
 ## 常見問題
+
+**它說「權限擋住」「讀不到 skill」，或給你一個 chatgpt.com 的網頁連結，而不是 `trip.html`**
+權限沒開，它讀不到 skill、也存不了檔案。照上面「先開好權限」重開一次 Codex 再排。
 
 **問它有沒有 travel-planner，它說沒有**
 - 重開 Codex，確認它打開的是「我的旅行」資料夾，不是別的資料夾。
