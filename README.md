@@ -11,7 +11,7 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 | [有了 Claude Code，公司還付我薪水做什麼？](https://www.youtube.com/watch?v=r7LhVd36AgU) | — |
 | [用 AI 寫程式半年，產量變 3 倍——我的時間有變多嗎？](https://www.youtube.com/watch?v=3iRO66WKQyU) | — |
 | [Astra 23 分鐘做出一個開放世界，AI 接走了我幾層工作？](https://www.youtube.com/watch?v=x26EawhRXK8) | — |
-| ChatGPT 排的火車，那天根本不會來…而且它寫得超肯定 | 影片置頂留言的指令，複製到 ChatGPT 就能用 |
+| [ChatGPT 排的火車，那天根本不會來…而且它寫得超肯定](https://www.youtube.com/watch?v=3i2-oc_Tu9s) | 影片置頂留言的指令，複製到 ChatGPT 就能用 |
 | 用 AI Agent 排旅行（即將上片） | [`travel/`](travel/)：旅行 skill（Codex、Claude Code 都能用）、ChatGPT 指令、空白模板、兩份範例 |
 
 ## 用 AI 排旅行 · [`travel/`](travel/)
