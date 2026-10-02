@@ -2,7 +2,7 @@
 
 在 Codex 或 Claude Code 裝好 skill 之後，貼哪一句都可以。**不知道要貼什麼就貼第一句**，它會自己問你。
 還沒裝的話，先看 [Codex 使用說明](codex.md) 或 [Claude Code 使用說明](claude-code.md)。
-只用一般 ChatGPT 對話，請改貼 [ChatGPT 完整提示詞](chatgpt-prompt.md)，那一份不用安裝。
+只用一般 ChatGPT 對話，請改貼 [ChatGPT 複製貼上版](chatgpt-prompt.md)，那一份不用安裝。
 
 ---
 
@@ -88,5 +88,5 @@
 
 ## 不用 Codex 或 Claude Code 的話
 
-[ChatGPT 完整提示詞](chatgpt-prompt.md) 可以直接貼進一般對話。
+[ChatGPT 複製貼上版](chatgpt-prompt.md) 可以直接貼進一般對話。
 [`travel-template.md`](travel-template.md) 是空白的 Markdown 行程模板，自己填也行。

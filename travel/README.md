@@ -28,7 +28,7 @@
 |---|---|
 | [`travel-planner/`](travel-planner/) | **skill 本體**，給 AI 讀的。整個資料夾一起裝，不用打開看 |
 | [`prompts.md`](prompts.md) | **裝好之後可以直接複製的幾句話**：開始排、一次講完、改行程、旅行回來 |
-| [`chatgpt-prompt.md`](chatgpt-prompt.md) | 一般 ChatGPT 對話用的完整指令，不用安裝 |
+| [`chatgpt-prompt.md`](chatgpt-prompt.md) | 一般 ChatGPT 對話用的指令，影片置頂留言同一段、實測過，不用安裝 |
 | [`travel-template.md`](travel-template.md) | 空白行程模板，想自己填也行 |
 | [`examples/`](examples/) | 兩份範例行程頁和 PDF（見下面） |
 
