@@ -12,7 +12,7 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 | [用 AI 寫程式半年，產量變 3 倍——我的時間有變多嗎？](https://www.youtube.com/watch?v=3iRO66WKQyU) | — |
 | [Astra 23 分鐘做出一個開放世界，AI 接走了我幾層工作？](https://www.youtube.com/watch?v=x26EawhRXK8) | — |
 | [ChatGPT 排的火車，那天根本不會來…而且它寫得超肯定](https://www.youtube.com/watch?v=3i2-oc_Tu9s) | 影片置頂留言的指令，複製到 ChatGPT 就能用 |
-| 用 AI Agent 排旅行（即將上片） | [`travel/`](travel/)：旅行 skill（Codex、Claude Code 都能用）、ChatGPT 指令、空白模板、兩份範例 |
+| 用 AI Agent 排旅行（即將上片） | [`travel/`](travel/)：旅行 skill（Codex、Claude Code 都能用）、ChatGPT 指令、空白模板、三份範例 |
 
 ## 用 AI 排旅行 · [`travel/`](travel/)
 
@@ -33,4 +33,4 @@ YouTube：[@DustyNotesAI](https://www.youtube.com/@DustyNotesAI)
 
 **例外：範例行程頁裡的照片不在 MIT 授權範圍內。**
 - **歐洲範例**的照片是微塵筆記自己在旅途中拍的，© 微塵筆記 DustyNotes，保留所有權利。
-- **東京範例**的照片來自 Wikimedia Commons，照各自的 CC BY-SA 授權使用；作者、授權條款連結和原始檔案在行程頁最下面。
+- **東京、瑞士＋義大利範例**的照片來自 Wikimedia Commons，照各自的 CC BY-SA 授權使用；作者、授權條款連結和原始檔案在行程頁最下面。

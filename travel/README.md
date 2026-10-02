@@ -38,8 +38,9 @@
 |---|---|---|
 | 歐洲十五天 | 真的走完的那一趟，四個國家。私人資訊已拿掉 | [行程頁](https://dustynotesai.github.io/dustynotesai/travel/examples/europe-2026/trip.html) |
 | 東京七天 | 用這個 skill 排的，還沒去。公開前逐項對過官網，抽查到的錯都改了 | [行程頁](https://dustynotesai.github.io/dustynotesai/travel/examples/tokyo-2026-11/trip.html) |
+| 瑞士＋義大利七天 | **用 Codex 排的**，就是影片裡錄下來的那一次（一段話給完資料、看過大綱、做出行程頁和 PDF）。交通寫的是規劃時段，不是查好的班次，買票前照頁面上的清單查。Codex 當時用了自己畫的插圖，公開前換成 Wikimedia Commons 的照片，其他沒動 | [行程頁](https://dustynotesai.github.io/dustynotesai/travel/examples/switzerland-italy-2026-10/trip.html) |
 
-這兩份是用 Claude Code 做的。Codex 用同一份 skill，做出來的頁面長一樣。
+歐洲、東京兩份是用 Claude Code 做的；瑞士＋義大利那份是 Codex。兩邊用的是同一份 skill。
 
 ---
 
@@ -73,4 +74,4 @@
 ## 授權
 
 skill、模板和文件是 [MIT](../LICENSE)。範例行程頁裡的照片不在 MIT 範圍內：歐洲範例的照片 © 微塵筆記 DustyNotes；
-東京範例的照片來自 Wikimedia Commons，授權寫在行程頁最下面。
+東京和瑞士＋義大利範例的照片來自 Wikimedia Commons，授權寫在行程頁最下面。
