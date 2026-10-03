@@ -5,7 +5,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { buildTrip, printPdf, TP } from './build.mjs';
+import { buildTrip, printPdf, TP, validate } from './build.mjs';
 
 function fixture(t) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'travel-planner-test-'));
@@ -154,4 +154,13 @@ test('a redacted HTML rebuild cannot link to the older unredacted PDF', async (t
   const html = fs.readFileSync(f.htmlPath, 'utf8');
   assert.ok(!html.includes('Private hotel'));
   assert.ok(!html.includes('href="trip.pdf"'));
+});
+
+test('a drawn SVG cannot stand in for a city photo', (t) => {
+  const { dir, trip } = fixture(t);
+  fs.writeFileSync(path.join(dir, 'alps.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
+  trip.photos.city = { file: 'alps.svg', alt: '' };
+  assert.match(validate(trip, dir).errors.join(' '), /SVG/);
+  trip.photos.city = { src: 'data:image/svg+xml;base64,PHN2Zy8+' };
+  assert.match(validate(trip, dir).errors.join(' '), /SVG/);
 });

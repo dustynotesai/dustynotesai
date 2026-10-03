@@ -134,7 +134,7 @@ build.mjs 看到 `mail.google.com` 或 `mail` 欄位會直接擋下來。
 |---|---|---|
 | id | | 英數字、`-`、`_`。`cover`、`sections[].photo`、`rows[].photo` 用它 |
 | `commons` | 二選一 | Wikimedia Commons 的檔名，`File:` 開頭。build 會抓 800px 左右的版本、存在 trip.json 旁邊的 `photos/`、自動寫作者和授權 |
-| `file` | 二選一 | 本機圖片，路徑相對於 trip.json |
+| `file` | 二選一 | 本機圖片，路徑相對於 trip.json。**SVG 會被 build 擋下來**：不要自己畫插圖代替照片 |
 | `alt` | | 描述圖片內容。城市分段的大圖是裝飾，alt 會留空 |
 | `author` / `license` / `source` | | `commons` 會自動填。`file` 要自己寫，沒寫 build 會提醒——**公開之前要補** |
 

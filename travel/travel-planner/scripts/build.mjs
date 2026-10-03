@@ -61,6 +61,11 @@ export function validate(trip, baseDir) {
   const errors = result.errors.slice();
   const photos = trip && typeof trip.photos === 'object' && trip.photos ? trip.photos : {};
   for (const [id, p] of Object.entries(photos)) {
+    // Drawn SVG "illustrations" are not photos (EP06: Codex drew two instead of using Commons).
+    if (p && ((typeof p.file === 'string' && /\.svg$/i.test(p.file)) || (typeof p.src === 'string' && /^data:image\/svg/i.test(p.src)))) {
+      errors.push(`photos.${id}：不要用 SVG 插圖代替照片，改用 Wikimedia Commons（commons）或自己拍的照片（file）`);
+      continue;
+    }
     if (!p || typeof p.file !== 'string' || !p.file) continue;
     const f = path.resolve(baseDir, p.file);
     if (!fs.existsSync(f)) errors.push(`photos.${id}.file：找不到 ${p.file}（相對於 trip.json 的位置）`);
