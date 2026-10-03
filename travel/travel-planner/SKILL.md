@@ -11,6 +11,13 @@ description: Plan or revise travel itineraries, compare flights, hotels and inte
 Codex 和 Claude Code 共用這份 skill。**在 Codex 執行時，先讀 [references/codex.md](references/codex.md)**，
 確認工具、資料夾與交件方式。一般 ChatGPT 對話使用 repo 裡的 `travel/chatgpt-prompt.md` 複製貼上版。
 
+## ⭐ 查班次：最不能漏的一步
+
+城市之間的每一段車，**都要用帶出發日期的方式查過一次**。整年的時刻表、別天的查詢、「每小時一班」的一般時刻，都不算查到那一天。
+**讀網頁的工具打不開，不等於查不到：改用命令去抓那一天的資料**（Windows 用 PowerShell 的 `Invoke-RestMethod`，Mac 用 `curl`），真的抓不到才標「未驗證」。
+怎麼找能帶日期的查詢網址或公開時刻資料，寫在 [references/research.md](references/research.md)「指定日期查班次」，**查班次之前先讀那一段。**
+（實測過：這一步只寫在 research.md 的時候，有打開那一份的 4 次都抓到那一天，沒打開的 6 次只抓到 1 次。所以寫在這裡。）
+
 ## ⭐ 一律用中文，從頭到尾
 
 這份 skill 是給華人用的。**每一組問題、讀回去的那一句、每天的大綱、行程頁上的字，全部用中文**：
